@@ -48,14 +48,18 @@ export default function Index() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button className="bg-fme-blue hover:bg-fme-blue/90 text-white px-8 py-6 text-lg">
-                  <Search className="w-5 h-5 mr-2" />
-                  Explore Events
-                </Button>
-                <Button variant="outline" className="border-fme-orange text-fme-orange hover:bg-fme-orange hover:text-white px-8 py-6 text-lg">
-                  <Calendar className="w-5 h-5 mr-2" />
-                  Create Event
-                </Button>
+                <Link to="/events">
+                  <Button className="bg-fme-blue hover:bg-fme-blue/90 text-white px-8 py-6 text-lg w-full sm:w-auto">
+                    <Search className="w-5 h-5 mr-2" />
+                    Explore Events
+                  </Button>
+                </Link>
+                <Link to="/create-event">
+                  <Button variant="outline" className="border-fme-orange text-fme-orange hover:bg-fme-orange hover:text-white px-8 py-6 text-lg w-full sm:w-auto">
+                    <Calendar className="w-5 h-5 mr-2" />
+                    Create Event
+                  </Button>
+                </Link>
               </div>
               
               <div className="flex items-center gap-8 mt-8 text-sm text-gray-500">
@@ -247,10 +251,12 @@ export default function Index() {
               <Smartphone className="w-5 h-5 mr-2" />
               Download App
             </Button>
-            <Button variant="outline" className="border-white text-white hover:bg-white hover:text-fme-blue px-8 py-6 text-lg">
-              Get Started Now
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+            <Link to="/signup">
+              <Button variant="outline" className="border-white text-white hover:bg-white hover:text-fme-blue px-8 py-6 text-lg">
+                Get Started Now
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
           </div>
           
           <div className="mt-8 flex items-center justify-center gap-8 text-blue-100 text-sm">
