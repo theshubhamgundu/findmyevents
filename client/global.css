@@ -40,6 +40,12 @@
 
     --radius: 0.5rem;
 
+    /* FindMyEvent brand colors */
+    --fme-blue: 210 100% 50%;
+    --fme-orange: 22 100% 50%;
+    --fme-blue-light: 210 100% 90%;
+    --fme-orange-light: 22 100% 90%;
+
     --sidebar-background: 0 0% 98%;
 
     --sidebar-foreground: 240 5.3% 26.1%;
