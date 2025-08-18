@@ -7,6 +7,25 @@ import { useEffect, useState } from 'react';
 import { getEvents } from '@/lib/supabase';
 
 export default function Events() {
+  const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        const data = await getEvents({ search: searchQuery });
+        setEvents(data || []);
+      } catch (error) {
+        console.error('Error loading events:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadEvents();
+  }, [searchQuery]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
