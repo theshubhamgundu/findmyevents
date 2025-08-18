@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Menu, X, Calendar, Search, User, Bell, LogOut, Settings, Dashboard as DashboardIcon } from 'lucide-react';
+import { Menu, X, Calendar, Search, User, Bell, LogOut, Settings, LayoutDashboard as DashboardIcon } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 
 export default function Header() {
