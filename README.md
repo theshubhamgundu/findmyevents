@@ -5,6 +5,7 @@ FindMyEvent is a comprehensive platform for students to discover, register, and 
 ## 🚀 Features
 
 ### For Students
+
 - **Smart Event Discovery**: Personalized recommendations based on interests and location
 - **Easy Registration**: One-click registration with multiple payment options
 - **QR Code Tickets**: Digital tickets with QR codes for seamless check-ins
@@ -13,6 +14,7 @@ FindMyEvent is a comprehensive platform for students to discover, register, and 
 - **Real-time Notifications**: WhatsApp, Telegram, and email reminders
 
 ### For Organizers
+
 - **Event Management**: Create and manage events with detailed analytics
 - **Verification System**: Verified organizer badges for trust
 - **Zero Commission**: Direct UPI payments with no platform fees
@@ -20,6 +22,7 @@ FindMyEvent is a comprehensive platform for students to discover, register, and 
 - **Analytics Dashboard**: Real-time insights on registrations and attendance
 
 ### For Admins
+
 - **Organizer Verification**: Approve and manage organizer applications
 - **Platform Analytics**: Comprehensive platform statistics
 - **Content Moderation**: Monitor and manage platform content
@@ -44,22 +47,26 @@ FindMyEvent is a comprehensive platform for students to discover, register, and 
 ## 🔧 Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd findmyevent
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Environment Setup**
+
    ```bash
    cp .env.example .env
    ```
-   
+
    Update `.env` with your actual credentials:
+
    ```bash
    VITE_SUPABASE_URL=https://your-project-id.supabase.co
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
@@ -79,11 +86,13 @@ FindMyEvent is a comprehensive platform for students to discover, register, and 
 ## 🚀 Deployment
 
 ### Quick Deploy to Netlify
+
 1. [Connect to Netlify](#open-mcp-popover) MCP integration
 2. Configure environment variables
 3. Deploy with a single click
 
 ### Manual Deployment
+
 See [PRODUCTION.md](PRODUCTION.md) for detailed deployment instructions.
 
 ## 📁 Project Structure
@@ -104,24 +113,28 @@ findmyevent/
 ## 🔑 Key Components
 
 ### Authentication Flow
+
 - Email/Phone + OTP authentication
 - Google Sign-in integration
 - Role-based access (Student/Organizer/Admin)
 - Automatic profile creation
 
 ### Event Management
+
 - Complete CRUD operations for events
 - Multiple ticket types with pricing
 - Event analytics and reporting
 - QR code generation for tickets
 
 ### Payment Integration
+
 - Razorpay UPI payments
 - Zero commission for organizers
 - Secure payment handling
 - Automatic ticket generation
 
 ### Security Features
+
 - Row Level Security (RLS) on all tables
 - Secure file upload policies
 - API key protection
@@ -131,6 +144,7 @@ findmyevent/
 ## 🔍 Health Monitoring
 
 The application includes a built-in health check system that monitors:
+
 - Supabase connection status
 - Database accessibility
 - Authentication service availability

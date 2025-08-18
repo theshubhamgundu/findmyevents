@@ -23,7 +23,7 @@ VITE_EMAIL_SERVICE_URL=your_email_service_url
 ### Netlify Deployment
 
 1. **Connect Repository**: Connect your GitHub repository to Netlify
-2. **Build Settings**: 
+2. **Build Settings**:
    - Build command: `npm run build`
    - Publish directory: `dist`
 3. **Environment Variables**: Add all required variables in Netlify dashboard
@@ -42,24 +42,30 @@ VITE_EMAIL_SERVICE_URL=your_email_service_url
 ## Supabase Production Setup
 
 ### 1. Create Production Database
+
 1. Create a new Supabase project for production
 2. Copy the database schema from `supabase/migrations/001_create_tables.sql`
 3. Run the SQL in your Supabase SQL Editor
 
 ### 2. Configure Authentication
+
 1. Go to Authentication → Settings
 2. Enable Email authentication
 3. Configure redirect URLs for your production domain
 4. Optional: Enable Google OAuth
 
 ### 3. Configure Storage
+
 Storage buckets are automatically created by the migration:
+
 - `event-images`: Public bucket for event images
 - `user-avatars`: Public bucket for user profile pictures
 - `organizer-documents`: Private bucket for verification documents
 
 ### 4. Set up Row Level Security
+
 RLS policies are automatically configured by the migration to ensure:
+
 - Users can only access their own data
 - Organizers can only manage their own events
 - Public read access to published events

@@ -1,15 +1,15 @@
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import HealthCheck from '@/components/HealthCheck';
-import { Card, CardContent } from '@/components/ui/card';
-import { 
-  Calendar, 
-  MapPin, 
-  Users, 
-  Shield, 
-  QrCode, 
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import HealthCheck from "@/components/HealthCheck";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Calendar,
+  MapPin,
+  Users,
+  Shield,
+  QrCode,
   Bell,
   Smartphone,
   Zap,
@@ -18,8 +18,8 @@ import {
   ArrowRight,
   Search,
   Filter,
-  Ticket
-} from 'lucide-react';
+  Ticket,
+} from "lucide-react";
 
 export default function Index() {
   return (
@@ -37,20 +37,21 @@ export default function Index() {
                 <Star className="w-4 h-4 mr-2" />
                 #1 Student Event Platform in India
               </div>
-              
+
               <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
                 Discover Your Next
                 <span className="block">
-                  <span className="text-fme-blue">Tech</span>{' '}
+                  <span className="text-fme-blue">Tech</span>{" "}
                   <span className="text-fme-orange">Event</span>
                 </span>
               </h1>
-              
+
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-                Join thousands of students exploring hackathons, workshops, seminars, and tech fests. 
-                From registration to QR-based check-ins, we've got you covered.
+                Join thousands of students exploring hackathons, workshops,
+                seminars, and tech fests. From registration to QR-based
+                check-ins, we've got you covered.
               </p>
-              
+
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/events">
                   <Button className="bg-fme-blue hover:bg-fme-blue/90 text-white px-8 py-6 text-lg w-full sm:w-auto">
@@ -59,13 +60,16 @@ export default function Index() {
                   </Button>
                 </Link>
                 <Link to="/create-event">
-                  <Button variant="outline" className="border-fme-orange text-fme-orange hover:bg-fme-orange hover:text-white px-8 py-6 text-lg w-full sm:w-auto">
+                  <Button
+                    variant="outline"
+                    className="border-fme-orange text-fme-orange hover:bg-fme-orange hover:text-white px-8 py-6 text-lg w-full sm:w-auto"
+                  >
                     <Calendar className="w-5 h-5 mr-2" />
                     Create Event
                   </Button>
                 </Link>
               </div>
-              
+
               <div className="flex items-center gap-8 mt-8 text-sm text-gray-500">
                 <div className="flex items-center">
                   <Users className="w-4 h-4 mr-2" />
@@ -81,7 +85,7 @@ export default function Index() {
                 </div>
               </div>
             </div>
-            
+
             <div className="relative lg:block">
               <div className="relative">
                 {/* Main Event Card */}
@@ -92,20 +96,22 @@ export default function Index() {
                         HACKATHON
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-gray-900">15</div>
+                        <div className="text-2xl font-bold text-gray-900">
+                          15
+                        </div>
                         <div className="text-sm text-gray-500">FEB</div>
                       </div>
                     </div>
-                    
+
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
                       HackFest 2024
                     </h3>
-                    
+
                     <div className="flex items-center text-gray-600 text-sm mb-3">
                       <MapPin className="w-4 h-4 mr-1" />
                       IIT Delhi
                     </div>
-                    
+
                     <div className="flex items-center justify-between">
                       <div className="flex items-center text-fme-orange text-sm font-medium">
                         <Ticket className="w-4 h-4 mr-1" />
@@ -118,14 +124,14 @@ export default function Index() {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 {/* Background Cards */}
                 <Card className="absolute top-4 left-4 w-full transform -rotate-6 shadow-lg opacity-60">
                   <CardContent className="p-6 bg-fme-orange/10">
                     <div className="h-32"></div>
                   </CardContent>
                 </Card>
-                
+
                 <Card className="absolute top-8 left-8 w-full transform rotate-12 shadow-lg opacity-40">
                   <CardContent className="p-6 bg-fme-blue/10">
                     <div className="h-32"></div>
@@ -144,12 +150,13 @@ export default function Index() {
             <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6">
               Everything You Need for
               <span className="block">
-                <span className="text-fme-blue">Student</span>{' '}
+                <span className="text-fme-blue">Student</span>{" "}
                 <span className="text-fme-orange">Events</span>
               </span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              From discovery to check-in, we provide a complete ecosystem for student events
+              From discovery to check-in, we provide a complete ecosystem for
+              student events
             </p>
           </div>
 
@@ -160,9 +167,12 @@ export default function Index() {
                 <div className="w-12 h-12 bg-fme-blue/10 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <Search className="w-6 h-6 text-fme-blue" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Smart Discovery</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  Smart Discovery
+                </h3>
                 <p className="text-gray-600">
-                  Personalized event recommendations based on your interests, location, and college year.
+                  Personalized event recommendations based on your interests,
+                  location, and college year.
                 </p>
               </CardContent>
             </Card>
@@ -173,9 +183,12 @@ export default function Index() {
                 <div className="w-12 h-12 bg-fme-orange/10 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <QrCode className="w-6 h-6 text-fme-orange" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">QR Tickets</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  QR Tickets
+                </h3>
                 <p className="text-gray-600">
-                  Instant ticket generation with unique QR codes for seamless event check-ins.
+                  Instant ticket generation with unique QR codes for seamless
+                  event check-ins.
                 </p>
               </CardContent>
             </Card>
@@ -186,9 +199,12 @@ export default function Index() {
                 <div className="w-12 h-12 bg-fme-blue/10 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <Shield className="w-6 h-6 text-fme-blue" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Verified Organizers</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  Verified Organizers
+                </h3>
                 <p className="text-gray-600">
-                  Only verified colleges, clubs, and startups can host events for maximum trust.
+                  Only verified colleges, clubs, and startups can host events
+                  for maximum trust.
                 </p>
               </CardContent>
             </Card>
@@ -199,9 +215,12 @@ export default function Index() {
                 <div className="w-12 h-12 bg-fme-orange/10 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <Zap className="w-6 h-6 text-fme-orange" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Zero Commission</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  Zero Commission
+                </h3>
                 <p className="text-gray-600">
-                  Direct UPI payments to organizers with no platform fees or hidden charges.
+                  Direct UPI payments to organizers with no platform fees or
+                  hidden charges.
                 </p>
               </CardContent>
             </Card>
@@ -212,9 +231,12 @@ export default function Index() {
                 <div className="w-12 h-12 bg-fme-blue/10 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <Bell className="w-6 h-6 text-fme-blue" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Smart Notifications</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  Smart Notifications
+                </h3>
                 <p className="text-gray-600">
-                  Get reminders via WhatsApp, Telegram, and email for all your registered events.
+                  Get reminders via WhatsApp, Telegram, and email for all your
+                  registered events.
                 </p>
               </CardContent>
             </Card>
@@ -225,9 +247,12 @@ export default function Index() {
                 <div className="w-12 h-12 bg-fme-orange/10 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                   <TrendingUp className="w-6 h-6 text-fme-orange" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-4">Analytics Dashboard</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  Analytics Dashboard
+                </h3>
                 <p className="text-gray-600">
-                  Real-time insights for organizers on registrations, attendance, and engagement.
+                  Real-time insights for organizers on registrations,
+                  attendance, and engagement.
                 </p>
               </CardContent>
             </Card>
@@ -244,25 +269,28 @@ export default function Index() {
               Student Event Revolution?
             </span>
           </h2>
-          
+
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Whether you're a student looking for events or an organizer planning one, 
-            FindMyEvent has everything you need.
+            Whether you're a student looking for events or an organizer planning
+            one, FindMyEvent has everything you need.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button className="bg-white text-fme-blue hover:bg-gray-100 px-8 py-6 text-lg">
               <Smartphone className="w-5 h-5 mr-2" />
               Download App
             </Button>
             <Link to="/signup">
-              <Button variant="outline" className="border-white text-white hover:bg-white hover:text-fme-blue px-8 py-6 text-lg">
+              <Button
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-fme-blue px-8 py-6 text-lg"
+              >
                 Get Started Now
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
           </div>
-          
+
           <div className="mt-8 flex items-center justify-center gap-8 text-blue-100 text-sm">
             <div>✨ Free for Students</div>
             <div>🔒 100% Secure</div>
