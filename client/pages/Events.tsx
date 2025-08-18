@@ -50,6 +50,8 @@ export default function Events() {
                     <input
                       type="text"
                       placeholder="Search events..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 rounded-lg border text-gray-900"
                     />
                   </div>
@@ -65,126 +67,85 @@ export default function Events() {
         {/* Content */}
         <section className="py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Event Card 1 */}
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="bg-fme-blue/10 px-3 py-1 rounded-full text-fme-blue text-xs font-medium">
-                      HACKATHON
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-gray-900">15</div>
-                      <div className="text-sm text-gray-500">FEB</div>
-                    </div>
-                  </div>
+            {loading ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3].map((i) => (
+                  <Card key={i} className="animate-pulse">
+                    <CardContent className="p-6">
+                      <div className="h-4 bg-gray-200 rounded mb-4"></div>
+                      <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-4 bg-gray-200 rounded mb-4"></div>
+                      <div className="h-10 bg-gray-200 rounded"></div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {events.map((event: any) => {
+                  const eventDate = new Date(event.start_date);
+                  const day = eventDate.getDate();
+                  const month = eventDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
                   
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">HackFest 2024</h3>
-                  
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <MapPin className="w-4 h-4 mr-2" />
-                      IIT Delhi
-                    </div>
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      15-16 Feb 2024
-                    </div>
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <Users className="w-4 h-4 mr-2" />
-                      250 registered
-                    </div>
-                  </div>
-                  
-                  <Button className="w-full bg-fme-blue hover:bg-fme-blue/90">
-                    Register Now • ₹500
-                  </Button>
-                </CardContent>
-              </Card>
+                  return (
+                    <Card key={event.id} className="hover:shadow-lg transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            event.event_type === 'hackathon' ? 'bg-fme-blue/10 text-fme-blue' :
+                            event.event_type === 'workshop' ? 'bg-fme-orange/10 text-fme-orange' :
+                            'bg-green-100 text-green-600'
+                          }`}>
+                            {event.event_type.toUpperCase()}
+                          </div>
+                          <div className="text-right">
+                            <div className="text-2xl font-bold text-gray-900">{day}</div>
+                            <div className="text-sm text-gray-500">{month}</div>
+                          </div>
+                        </div>
+                        
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h3>
+                        
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center text-gray-600 text-sm">
+                            <MapPin className="w-4 h-4 mr-2" />
+                            {event.venue}
+                          </div>
+                          <div className="flex items-center text-gray-600 text-sm">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            {eventDate.toLocaleDateString()}
+                          </div>
+                          <div className="flex items-center text-gray-600 text-sm">
+                            <Users className="w-4 h-4 mr-2" />
+                            {event.current_participants} registered
+                          </div>
+                        </div>
+                        
+                        <Button className={`w-full ${
+                          event.event_type === 'hackathon' ? 'bg-fme-blue hover:bg-fme-blue/90' :
+                          event.event_type === 'workshop' ? 'bg-fme-orange hover:bg-fme-orange/90' :
+                          'bg-fme-blue hover:bg-fme-blue/90'
+                        }`}>
+                          Register Now • {event.ticket_types?.[0]?.price ? `₹${event.ticket_types[0].price}` : 'Free'}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
 
-              {/* Event Card 2 */}
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="bg-fme-orange/10 px-3 py-1 rounded-full text-fme-orange text-xs font-medium">
-                      WORKSHOP
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-gray-900">20</div>
-                      <div className="text-sm text-gray-500">FEB</div>
-                    </div>
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">AI/ML Workshop</h3>
-                  
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <MapPin className="w-4 h-4 mr-2" />
-                      NIT Trichy
-                    </div>
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      20 Feb 2024
-                    </div>
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <Users className="w-4 h-4 mr-2" />
-                      150 registered
-                    </div>
-                  </div>
-                  
-                  <Button className="w-full bg-fme-orange hover:bg-fme-orange/90">
-                    Register Now • Free
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Event Card 3 */}
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="bg-green-100 px-3 py-1 rounded-full text-green-600 text-xs font-medium">
-                      SEMINAR
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-gray-900">25</div>
-                      <div className="text-sm text-gray-500">FEB</div>
-                    </div>
-                  </div>
-                  
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Tech Career Summit</h3>
-                  
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <MapPin className="w-4 h-4 mr-2" />
-                      BITS Pilani
-                    </div>
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      25 Feb 2024
-                    </div>
-                    <div className="flex items-center text-gray-600 text-sm">
-                      <Users className="w-4 h-4 mr-2" />
-                      300 registered
-                    </div>
-                  </div>
-                  
-                  <Button className="w-full bg-fme-blue hover:bg-fme-blue/90">
-                    Register Now • ₹200
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Placeholder Message */}
-            <div className="text-center mt-12 py-12 bg-white rounded-lg">
-              <Star className="w-12 h-12 text-fme-blue mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                More content coming soon!
-              </h3>
-              <p className="text-gray-600">
-                Continue prompting to help me build out this Events page with more features and functionality.
-              </p>
-            </div>
+            {events.length === 0 && !loading && (
+              <div className="text-center mt-12 py-12 bg-white rounded-lg">
+                <Star className="w-12 h-12 text-fme-blue mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  {searchQuery ? 'No events found' : 'No events available'}
+                </h3>
+                <p className="text-gray-600">
+                  {searchQuery ? 'Try adjusting your search terms.' : 'Configure Supabase to load real events or create new ones.'}
+                </p>
+              </div>
+            )}
           </div>
         </section>
       </main>
