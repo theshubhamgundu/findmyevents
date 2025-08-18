@@ -10,10 +10,11 @@ import Index from "./pages/Index";
 import Events from "./pages/Events";
 import Dashboard from "./pages/Dashboard";
 import CreateEvent from "./pages/CreateEvent";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import NotFound from "./pages/NotFound";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
+import { AuthProvider } from "./lib/auth-context";
 import { User, Shield, Bell, HelpCircle } from "lucide-react";
 
 const queryClient = new QueryClient();
@@ -23,7 +24,8 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
         <Routes>
           {/* Main Pages */}
           <Route path="/" element={<Index />} />
@@ -32,20 +34,8 @@ const App = () => (
           <Route path="/create-event" element={<CreateEvent />} />
 
           {/* Auth Pages */}
-          <Route path="/login" element={
-            <PlaceholderPage
-              title="Student Login"
-              description="Sign in to access your personalized event dashboard and tickets."
-              icon={<User className="w-12 h-12 text-fme-blue mx-auto" />}
-            />
-          } />
-          <Route path="/signup" element={
-            <PlaceholderPage
-              title="Join FindMyEvent"
-              description="Create your account to discover and register for amazing tech events."
-              icon={<User className="w-12 h-12 text-fme-orange mx-auto" />}
-            />
-          } />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
 
           {/* Event Types */}
           <Route path="/hackathons" element={
@@ -110,7 +100,8 @@ const App = () => (
           {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </BrowserRouter>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
