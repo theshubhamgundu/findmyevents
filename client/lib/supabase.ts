@@ -8,60 +8,36 @@ export const isSupabaseConfigured = !!(
   supabaseUrl && 
   supabaseAnonKey && 
   supabaseUrl !== 'your_supabase_project_url' &&
-  supabaseAnonKey !== 'your_supabase_anon_key_here'
+  supabaseAnonKey !== 'your_supabase_anon_key_here' &&
+  supabaseUrl !== 'https://demo.supabase.co' &&
+  supabaseAnonKey !== 'demo_key_placeholder'
 );
 
-// Create a mock client for development when Supabase is not configured
-const createMockClient = () => ({
-  auth: {
-    getSession: () => Promise.resolve({ data: { session: null }, error: null }),
-    getUser: () => Promise.resolve({ data: { user: null }, error: null }),
-    signInWithPassword: () => Promise.reject(new Error('Supabase not configured')),
-    signUp: () => Promise.reject(new Error('Supabase not configured')),
-    signOut: () => Promise.reject(new Error('Supabase not configured')),
-    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
-  },
-  from: () => ({
-    select: () => ({ error: new Error('Supabase not configured') }),
-    insert: () => ({ error: new Error('Supabase not configured') }),
-    update: () => ({ error: new Error('Supabase not configured') }),
-    delete: () => ({ error: new Error('Supabase not configured') }),
-    eq: function() { return this; },
-    single: function() { return this; },
-    order: function() { return this; },
-    or: function() { return this; },
-  }),
-  channel: () => ({
-    on: function() { return this; },
-    subscribe: () => {},
-  }),
-});
+if (!isSupabaseConfigured) {
+  console.warn('Supabase is not properly configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.');
+}
 
-// Export the client - either real Supabase or mock client
+// Create Supabase client
 export const supabase = isSupabaseConfigured 
   ? createClient(supabaseUrl!, supabaseAnonKey!)
-  : createMockClient() as any;
+  : null;
 
-// Auth helpers with error handling
+// Auth helpers
 export const getCurrentUser = async () => {
-  if (!isSupabaseConfigured) {
-    return null;
-  }
+  if (!supabase) return null;
   
   try {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error) throw error;
     return user;
   } catch (error) {
-    console.warn('Failed to get current user:', error);
+    console.error('Failed to get current user:', error);
     return null;
   }
 };
 
 export const getCurrentProfile = async () => {
-  if (!isSupabaseConfigured) {
-    return null;
-  }
+  if (!supabase) return null;
   
   try {
     const user = await getCurrentUser();
@@ -76,14 +52,14 @@ export const getCurrentProfile = async () => {
     if (error) throw error;
     return profile;
   } catch (error) {
-    console.warn('Failed to get current profile:', error);
+    console.error('Failed to get current profile:', error);
     return null;
   }
 };
 
 export const signIn = async (email: string, password: string) => {
-  if (!isSupabaseConfigured) {
-    throw new Error('Supabase is not configured. Please add your Supabase URL and API key to the environment variables.');
+  if (!supabase) {
+    throw new Error('Authentication is not available. Please configure Supabase connection.');
   }
   
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -95,8 +71,8 @@ export const signIn = async (email: string, password: string) => {
 };
 
 export const signUp = async (email: string, password: string, profile: any) => {
-  if (!isSupabaseConfigured) {
-    throw new Error('Supabase is not configured. Please add your Supabase URL and API key to the environment variables.');
+  if (!supabase) {
+    throw new Error('Authentication is not available. Please configure Supabase connection.');
   }
   
   const { data, error } = await supabase.auth.signUp({
@@ -123,54 +99,21 @@ export const signUp = async (email: string, password: string, profile: any) => {
 };
 
 export const signOut = async () => {
-  if (!isSupabaseConfigured) {
-    return;
-  }
+  if (!supabase) return;
   
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 };
 
-// Database helpers with error handling
+// Event management
 export const getEvents = async (filters?: any) => {
-  if (!isSupabaseConfigured) {
-    // Return mock data for development
-    return [
-      {
-        id: '1',
-        title: 'Mock Hackathon 2024',
-        description: 'This is mock data - configure Supabase to see real events',
-        event_type: 'hackathon',
-        city: 'Delhi',
-        start_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        end_date: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString(),
-        venue: 'Mock Venue',
-        current_participants: 150,
-        max_participants: 500,
-        is_team_event: true,
-        event_status: 'published',
-        organizer: {
-          organization_name: 'Mock College',
-          verification_status: 'approved'
-        },
-        ticket_types: [
-          {
-            id: '1',
-            name: 'General',
-            price: 500,
-            quantity: 500,
-            sold: 150
-          }
-        ]
-      }
-    ];
-  }
+  if (!supabase) return [];
   
   let query = supabase
     .from('events')
     .select(`
       *,
-      organizer:organizers(*),
+      organizer:organizers!inner(*),
       ticket_types(*)
     `)
     .eq('event_status', 'published')
@@ -189,52 +132,57 @@ export const getEvents = async (filters?: any) => {
   }
 
   const { data, error } = await query;
-  if (error) throw error;
-  return data;
+  if (error) {
+    console.error('Error fetching events:', error);
+    return [];
+  }
+  return data || [];
 };
 
 export const getEventById = async (id: string) => {
-  if (!isSupabaseConfigured) {
-    return null;
-  }
+  if (!supabase) return null;
   
   const { data, error } = await supabase
     .from('events')
     .select(`
       *,
-      organizer:organizers(*),
+      organizer:organizers!inner(*),
       ticket_types(*)
     `)
     .eq('id', id)
     .single();
     
-  if (error) throw error;
+  if (error) {
+    console.error('Error fetching event:', error);
+    return null;
+  }
   return data;
 };
 
 export const getUserTickets = async (userId: string) => {
-  if (!isSupabaseConfigured) {
-    return [];
-  }
+  if (!supabase) return [];
   
   const { data, error } = await supabase
     .from('tickets')
     .select(`
       *,
-      event:events(*),
-      ticket_type:ticket_types(*),
+      event:events!inner(*),
+      ticket_type:ticket_types!inner(*),
       payment:payments(*)
     `)
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
     
-  if (error) throw error;
-  return data;
+  if (error) {
+    console.error('Error fetching tickets:', error);
+    return [];
+  }
+  return data || [];
 };
 
 export const createEvent = async (eventData: any) => {
-  if (!isSupabaseConfigured) {
-    throw new Error('Supabase is not configured. Please add your Supabase URL and API key to create events.');
+  if (!supabase) {
+    throw new Error('Database connection not available.');
   }
   
   const { data, error } = await supabase
@@ -248,8 +196,8 @@ export const createEvent = async (eventData: any) => {
 };
 
 export const createTicketTypes = async (ticketTypes: any[]) => {
-  if (!isSupabaseConfigured) {
-    throw new Error('Supabase is not configured.');
+  if (!supabase) {
+    throw new Error('Database connection not available.');
   }
   
   const { data, error } = await supabase
@@ -262,14 +210,25 @@ export const createTicketTypes = async (ticketTypes: any[]) => {
 };
 
 export const registerForEvent = async (registrationData: any) => {
-  if (!isSupabaseConfigured) {
-    throw new Error('Supabase is not configured.');
+  if (!supabase) {
+    throw new Error('Database connection not available.');
   }
+  
+  // Generate unique ticket ID
+  const ticketId = `FME-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
   
   const { data, error } = await supabase
     .from('tickets')
-    .insert([registrationData])
-    .select()
+    .insert([{
+      ...registrationData,
+      ticket_id: ticketId,
+      status: 'active'
+    }])
+    .select(`
+      *,
+      event:events!inner(*),
+      ticket_type:ticket_types!inner(*)
+    `)
     .single();
     
   if (error) throw error;
@@ -277,9 +236,7 @@ export const registerForEvent = async (registrationData: any) => {
 };
 
 export const getOrganizerByUserId = async (userId: string) => {
-  if (!isSupabaseConfigured) {
-    return null;
-  }
+  if (!supabase) return null;
   
   const { data, error } = await supabase
     .from('organizers')
@@ -287,13 +244,16 @@ export const getOrganizerByUserId = async (userId: string) => {
     .eq('user_id', userId)
     .single();
     
-  if (error && error.code !== 'PGRST116') throw error;
+  if (error && error.code !== 'PGRST116') {
+    console.error('Error fetching organizer:', error);
+    return null;
+  }
   return data;
 };
 
 export const createOrganizer = async (organizerData: any) => {
-  if (!isSupabaseConfigured) {
-    throw new Error('Supabase is not configured.');
+  if (!supabase) {
+    throw new Error('Database connection not available.');
   }
   
   const { data, error } = await supabase
@@ -307,27 +267,192 @@ export const createOrganizer = async (organizerData: any) => {
 };
 
 export const getOrganizerEvents = async (organizerId: string) => {
-  if (!isSupabaseConfigured) {
-    return [];
-  }
+  if (!supabase) return [];
   
   const { data, error } = await supabase
     .from('events')
     .select(`
       *,
       ticket_types(*),
-      _count:tickets(count)
+      tickets(count)
     `)
     .eq('organizer_id', organizerId)
     .order('created_at', { ascending: false });
+    
+  if (error) {
+    console.error('Error fetching organizer events:', error);
+    return [];
+  }
+  return data || [];
+};
+
+// Payment processing
+export const createPayment = async (paymentData: any) => {
+  if (!supabase) {
+    throw new Error('Database connection not available.');
+  }
+  
+  const { data, error } = await supabase
+    .from('payments')
+    .insert([paymentData])
+    .select()
+    .single();
     
   if (error) throw error;
   return data;
 };
 
+export const updatePayment = async (paymentId: string, updates: any) => {
+  if (!supabase) {
+    throw new Error('Database connection not available.');
+  }
+  
+  const { data, error } = await supabase
+    .from('payments')
+    .update(updates)
+    .eq('id', paymentId)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data;
+};
+
+// Ticket management
+export const updateTicketStatus = async (ticketId: string, status: string, checkedInBy?: string) => {
+  if (!supabase) {
+    throw new Error('Database connection not available.');
+  }
+  
+  const updates: any = { status };
+  if (status === 'used') {
+    updates.checked_in_at = new Date().toISOString();
+    if (checkedInBy) {
+      updates.checked_in_by = checkedInBy;
+    }
+  }
+  
+  const { data, error } = await supabase
+    .from('tickets')
+    .update(updates)
+    .eq('id', ticketId)
+    .select()
+    .single();
+    
+  if (error) throw error;
+  return data;
+};
+
+// Notifications
+export const createNotification = async (notificationData: any) => {
+  if (!supabase) return null;
+  
+  const { data, error } = await supabase
+    .from('notifications')
+    .insert([notificationData])
+    .select()
+    .single();
+    
+  if (error) {
+    console.error('Error creating notification:', error);
+    return null;
+  }
+  return data;
+};
+
+export const getUserNotifications = async (userId: string) => {
+  if (!supabase) return [];
+  
+  const { data, error } = await supabase
+    .from('notifications')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(20);
+    
+  if (error) {
+    console.error('Error fetching notifications:', error);
+    return [];
+  }
+  return data || [];
+};
+
+export const markNotificationAsRead = async (notificationId: string) => {
+  if (!supabase) return null;
+  
+  const { data, error } = await supabase
+    .from('notifications')
+    .update({ is_read: true })
+    .eq('id', notificationId)
+    .select()
+    .single();
+    
+  if (error) {
+    console.error('Error marking notification as read:', error);
+    return null;
+  }
+  return data;
+};
+
+// Analytics
+export const updateEventAnalytics = async (eventId: string, type: 'view' | 'registration') => {
+  if (!supabase) return;
+  
+  const today = new Date().toISOString().split('T')[0];
+  
+  // Try to update existing analytics record
+  const { data: existing } = await supabase
+    .from('event_analytics')
+    .select('*')
+    .eq('event_id', eventId)
+    .eq('date', today)
+    .single();
+    
+  if (existing) {
+    // Update existing record
+    const updates = type === 'view' 
+      ? { views: existing.views + 1 }
+      : { registrations: existing.registrations + 1 };
+      
+    await supabase
+      .from('event_analytics')
+      .update(updates)
+      .eq('id', existing.id);
+  } else {
+    // Create new record
+    const newRecord = {
+      event_id: eventId,
+      date: today,
+      views: type === 'view' ? 1 : 0,
+      registrations: type === 'registration' ? 1 : 0,
+      revenue: 0
+    };
+    
+    await supabase
+      .from('event_analytics')
+      .insert([newRecord]);
+  }
+};
+
+export const getEventAnalytics = async (eventId: string) => {
+  if (!supabase) return [];
+  
+  const { data, error } = await supabase
+    .from('event_analytics')
+    .select('*')
+    .eq('event_id', eventId)
+    .order('date', { ascending: true });
+    
+  if (error) {
+    console.error('Error fetching analytics:', error);
+    return [];
+  }
+  return data || [];
+};
+
 // Real-time subscriptions
 export const subscribeToEvents = (callback: (payload: any) => void) => {
-  if (!isSupabaseConfigured) {
+  if (!supabase) {
     return { unsubscribe: () => {} };
   }
   
@@ -341,7 +466,7 @@ export const subscribeToEvents = (callback: (payload: any) => void) => {
 };
 
 export const subscribeToTickets = (userId: string, callback: (payload: any) => void) => {
-  if (!isSupabaseConfigured) {
+  if (!supabase) {
     return { unsubscribe: () => {} };
   }
   
@@ -357,4 +482,28 @@ export const subscribeToTickets = (userId: string, callback: (payload: any) => v
       callback
     )
     .subscribe();
+};
+
+// File upload
+export const uploadFile = async (bucket: string, path: string, file: File) => {
+  if (!supabase) {
+    throw new Error('Database connection not available.');
+  }
+  
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .upload(path, file);
+    
+  if (error) throw error;
+  return data;
+};
+
+export const getFileUrl = (bucket: string, path: string) => {
+  if (!supabase) return '';
+  
+  const { data } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(path);
+    
+  return data.publicUrl;
 };
