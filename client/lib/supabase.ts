@@ -3,34 +3,89 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
+// Check if Supabase is properly configured
+export const isSupabaseConfigured = !!(
+  supabaseUrl && 
+  supabaseAnonKey && 
+  supabaseUrl !== 'your_supabase_project_url' &&
+  supabaseAnonKey !== 'your_supabase_anon_key_here'
+);
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create a mock client for development when Supabase is not configured
+const createMockClient = () => ({
+  auth: {
+    getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+    getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+    signInWithPassword: () => Promise.reject(new Error('Supabase not configured')),
+    signUp: () => Promise.reject(new Error('Supabase not configured')),
+    signOut: () => Promise.reject(new Error('Supabase not configured')),
+    onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+  },
+  from: () => ({
+    select: () => ({ error: new Error('Supabase not configured') }),
+    insert: () => ({ error: new Error('Supabase not configured') }),
+    update: () => ({ error: new Error('Supabase not configured') }),
+    delete: () => ({ error: new Error('Supabase not configured') }),
+    eq: function() { return this; },
+    single: function() { return this; },
+    order: function() { return this; },
+    or: function() { return this; },
+  }),
+  channel: () => ({
+    on: function() { return this; },
+    subscribe: () => {},
+  }),
+});
 
-// Auth helpers
+// Export the client - either real Supabase or mock client
+export const supabase = isSupabaseConfigured 
+  ? createClient(supabaseUrl!, supabaseAnonKey!)
+  : createMockClient() as any;
+
+// Auth helpers with error handling
 export const getCurrentUser = async () => {
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error) throw error;
-  return user;
+  if (!isSupabaseConfigured) {
+    return null;
+  }
+  
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error) throw error;
+    return user;
+  } catch (error) {
+    console.warn('Failed to get current user:', error);
+    return null;
+  }
 };
 
 export const getCurrentProfile = async () => {
-  const user = await getCurrentUser();
-  if (!user) return null;
+  if (!isSupabaseConfigured) {
+    return null;
+  }
   
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
+  try {
+    const user = await getCurrentUser();
+    if (!user) return null;
     
-  if (error) throw error;
-  return profile;
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+      
+    if (error) throw error;
+    return profile;
+  } catch (error) {
+    console.warn('Failed to get current profile:', error);
+    return null;
+  }
 };
 
 export const signIn = async (email: string, password: string) => {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured. Please add your Supabase URL and API key to the environment variables.');
+  }
+  
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -40,6 +95,10 @@ export const signIn = async (email: string, password: string) => {
 };
 
 export const signUp = async (email: string, password: string, profile: any) => {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured. Please add your Supabase URL and API key to the environment variables.');
+  }
+  
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -64,12 +123,49 @@ export const signUp = async (email: string, password: string, profile: any) => {
 };
 
 export const signOut = async () => {
+  if (!isSupabaseConfigured) {
+    return;
+  }
+  
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 };
 
-// Database helpers
+// Database helpers with error handling
 export const getEvents = async (filters?: any) => {
+  if (!isSupabaseConfigured) {
+    // Return mock data for development
+    return [
+      {
+        id: '1',
+        title: 'Mock Hackathon 2024',
+        description: 'This is mock data - configure Supabase to see real events',
+        event_type: 'hackathon',
+        city: 'Delhi',
+        start_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        end_date: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString(),
+        venue: 'Mock Venue',
+        current_participants: 150,
+        max_participants: 500,
+        is_team_event: true,
+        event_status: 'published',
+        organizer: {
+          organization_name: 'Mock College',
+          verification_status: 'approved'
+        },
+        ticket_types: [
+          {
+            id: '1',
+            name: 'General',
+            price: 500,
+            quantity: 500,
+            sold: 150
+          }
+        ]
+      }
+    ];
+  }
+  
   let query = supabase
     .from('events')
     .select(`
@@ -98,6 +194,10 @@ export const getEvents = async (filters?: any) => {
 };
 
 export const getEventById = async (id: string) => {
+  if (!isSupabaseConfigured) {
+    return null;
+  }
+  
   const { data, error } = await supabase
     .from('events')
     .select(`
@@ -113,6 +213,10 @@ export const getEventById = async (id: string) => {
 };
 
 export const getUserTickets = async (userId: string) => {
+  if (!isSupabaseConfigured) {
+    return [];
+  }
+  
   const { data, error } = await supabase
     .from('tickets')
     .select(`
@@ -129,6 +233,10 @@ export const getUserTickets = async (userId: string) => {
 };
 
 export const createEvent = async (eventData: any) => {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured. Please add your Supabase URL and API key to create events.');
+  }
+  
   const { data, error } = await supabase
     .from('events')
     .insert([eventData])
@@ -140,6 +248,10 @@ export const createEvent = async (eventData: any) => {
 };
 
 export const createTicketTypes = async (ticketTypes: any[]) => {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured.');
+  }
+  
   const { data, error } = await supabase
     .from('ticket_types')
     .insert(ticketTypes)
@@ -150,6 +262,10 @@ export const createTicketTypes = async (ticketTypes: any[]) => {
 };
 
 export const registerForEvent = async (registrationData: any) => {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured.');
+  }
+  
   const { data, error } = await supabase
     .from('tickets')
     .insert([registrationData])
@@ -161,6 +277,10 @@ export const registerForEvent = async (registrationData: any) => {
 };
 
 export const getOrganizerByUserId = async (userId: string) => {
+  if (!isSupabaseConfigured) {
+    return null;
+  }
+  
   const { data, error } = await supabase
     .from('organizers')
     .select('*')
@@ -172,6 +292,10 @@ export const getOrganizerByUserId = async (userId: string) => {
 };
 
 export const createOrganizer = async (organizerData: any) => {
+  if (!isSupabaseConfigured) {
+    throw new Error('Supabase is not configured.');
+  }
+  
   const { data, error } = await supabase
     .from('organizers')
     .insert([organizerData])
@@ -183,6 +307,10 @@ export const createOrganizer = async (organizerData: any) => {
 };
 
 export const getOrganizerEvents = async (organizerId: string) => {
+  if (!isSupabaseConfigured) {
+    return [];
+  }
+  
   const { data, error } = await supabase
     .from('events')
     .select(`
@@ -199,6 +327,10 @@ export const getOrganizerEvents = async (organizerId: string) => {
 
 // Real-time subscriptions
 export const subscribeToEvents = (callback: (payload: any) => void) => {
+  if (!isSupabaseConfigured) {
+    return { unsubscribe: () => {} };
+  }
+  
   return supabase
     .channel('events')
     .on('postgres_changes', 
@@ -209,6 +341,10 @@ export const subscribeToEvents = (callback: (payload: any) => void) => {
 };
 
 export const subscribeToTickets = (userId: string, callback: (payload: any) => void) => {
+  if (!isSupabaseConfigured) {
+    return { unsubscribe: () => {} };
+  }
+  
   return supabase
     .channel('tickets')
     .on('postgres_changes',
