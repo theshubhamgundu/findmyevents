@@ -23,7 +23,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
-  const { signIn } = useAuth();
+  const { signIn, isConfigured } = useAuth();
   const navigate = useNavigate();
 
   const {
