@@ -323,7 +323,7 @@ export default function Dashboard() {
                   </Card>
                   <Card>
                     <CardContent className="p-4 text-center">
-                      <BookMarked className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                      <Bookmark className="w-8 h-8 text-green-500 mx-auto mb-2" />
                       <p className="text-2xl font-bold text-gray-900">{savedEvents.length}</p>
                       <p className="text-sm text-gray-600">Saved</p>
                     </CardContent>
