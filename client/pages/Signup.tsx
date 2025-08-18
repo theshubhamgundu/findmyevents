@@ -8,86 +8,118 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, Mail, Lock, User, GraduationCap, Building, ArrowLeft, Calendar } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  Loader2, 
+  Mail, 
+  Lock, 
+  User, 
+  Phone,
+  ArrowLeft, 
+  Calendar,
+  MessageSquare
+} from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import OnboardingWizard from '@/components/OnboardingWizard';
 import type { UserRole } from '@shared/types';
 
-const signupSchema = z.object({
+const emailSignupSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   confirmPassword: z.string(),
   full_name: z.string().min(2, 'Full name must be at least 2 characters'),
   role: z.enum(['student', 'organizer'] as const),
-  college: z.string().optional(),
-  year: z.number().min(1).max(6).optional(),
-  phone: z.string().optional(),
-  city: z.string().optional(),
-  interests: z.array(z.string()).optional(),
-  agreeToTerms: z.boolean().refine(val => val, 'You must agree to the terms'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
 });
 
-type SignupForm = z.infer<typeof signupSchema>;
+const phoneSignupSchema = z.object({
+  phone: z.string().regex(/^[+]?[1-9]\d{1,14}$/, 'Please enter a valid phone number'),
+  full_name: z.string().min(2, 'Full name must be at least 2 characters'),
+  role: z.enum(['student', 'organizer'] as const),
+});
 
-const eventInterests = [
-  'hackathon',
-  'workshop', 
-  'seminar',
-  'fest',
-  'ideathon',
-  'networking'
-];
+const otpSchema = z.object({
+  otp: z.string().length(6, 'OTP must be 6 digits'),
+});
 
-const years = [1, 2, 3, 4, 5, 6];
+type EmailSignupForm = z.infer<typeof emailSignupSchema>;
+type PhoneSignupForm = z.infer<typeof phoneSignupSchema>;
+type OTPForm = z.infer<typeof otpSchema>;
 
 export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState(false);
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
-  const { signUp } = useAuth();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [signupMethod, setSignupMethod] = useState<'email' | 'phone'>('email');
+  const [otpSent, setOtpSent] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [newUser, setNewUser] = useState<any>(null);
+  const { signUp, isConfigured } = useAuth();
   const navigate = useNavigate();
 
   const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm<SignupForm>({
-    resolver: zodResolver(signupSchema),
+    register: registerEmail,
+    handleSubmit: handleEmailSubmit,
+    watch: watchEmail,
+    setValue: setEmailValue,
+    formState: { errors: emailErrors },
+  } = useForm<EmailSignupForm>({
+    resolver: zodResolver(emailSignupSchema),
     defaultValues: {
       role: 'student',
-      interests: [],
-      agreeToTerms: false,
     },
   });
 
-  const selectedRole = watch('role');
+  const {
+    register: registerPhone,
+    handleSubmit: handlePhoneSubmit,
+    setValue: setPhoneValue,
+    formState: { errors: phoneErrors },
+  } = useForm<PhoneSignupForm>({
+    resolver: zodResolver(phoneSignupSchema),
+    defaultValues: {
+      role: 'student',
+    },
+  });
 
-  const onSubmit = async (data: SignupForm) => {
+  const {
+    register: registerOTP,
+    handleSubmit: handleOTPSubmit,
+    formState: { errors: otpErrors },
+  } = useForm<OTPForm>({
+    resolver: zodResolver(otpSchema),
+  });
+
+  const selectedRole = watchEmail('role');
+
+  const onEmailSubmit = async (data: EmailSignupForm) => {
     try {
       setIsLoading(true);
       setError('');
+
+      if (!isConfigured) {
+        setError('Authentication is not available. Please configure Supabase connection.');
+        return;
+      }
       
       const profileData = {
         full_name: data.full_name,
         role: data.role,
-        college: data.college,
-        year: data.year,
-        phone: data.phone,
-        city: data.city,
-        interests: selectedInterests,
       };
 
-      await signUp(data.email, data.password, profileData);
-      setSuccess(true);
+      const result = await signUp(data.email, data.password, profileData);
+      setNewUser({ ...profileData, email: data.email });
+      
+      if (data.role === 'student') {
+        setShowOnboarding(true);
+      } else {
+        setSuccess(true);
+      }
     } catch (err: any) {
       setError(err.message || 'An error occurred during signup');
     } finally {
@@ -95,14 +127,80 @@ export default function Signup() {
     }
   };
 
-  const toggleInterest = (interest: string) => {
-    const newInterests = selectedInterests.includes(interest)
-      ? selectedInterests.filter(i => i !== interest)
-      : [...selectedInterests, interest];
-    
-    setSelectedInterests(newInterests);
-    setValue('interests', newInterests);
+  const onPhoneSubmit = async (data: PhoneSignupForm) => {
+    try {
+      setIsLoading(true);
+      setError('');
+
+      // In real implementation, this would send OTP via SMS
+      setPhoneNumber(data.phone);
+      setOtpSent(true);
+      
+      // Mock OTP sending
+      console.log('Sending OTP to:', data.phone);
+      
+    } catch (err: any) {
+      setError(err.message || 'Failed to send OTP');
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  const onOTPSubmit = async (data: OTPForm) => {
+    try {
+      setIsLoading(true);
+      setError('');
+
+      // In real implementation, verify OTP
+      if (data.otp !== '123456') { // Mock OTP verification
+        setError('Invalid OTP. Please try again.');
+        return;
+      }
+
+      // Get phone signup data
+      const phoneData = {
+        full_name: registerPhone.getValues?.('full_name') || '',
+        role: registerPhone.getValues?.('role') || 'student',
+      };
+
+      setNewUser({ ...phoneData, phone: phoneNumber });
+      
+      if (phoneData.role === 'student') {
+        setShowOnboarding(true);
+      } else {
+        setSuccess(true);
+      }
+    } catch (err: any) {
+      setError(err.message || 'OTP verification failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+      
+      // In real implementation, this would use Google OAuth
+      console.log('Google Sign-in initiated');
+      setError('Google Sign-in integration requires additional setup');
+      
+    } catch (err: any) {
+      setError(err.message || 'Google Sign-in failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleOnboardingComplete = () => {
+    setShowOnboarding(false);
+    navigate('/dashboard');
+  };
+
+  if (showOnboarding && newUser?.role === 'student') {
+    return <OnboardingWizard user={newUser} onComplete={handleOnboardingComplete} />;
+  }
 
   if (success) {
     return (
@@ -118,16 +216,19 @@ export default function Signup() {
                   </svg>
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  Check Your Email!
+                  Account Created!
                 </h2>
                 <p className="text-gray-600 mb-6">
-                  We've sent you a verification link. Please check your email and click the link to activate your account.
+                  {selectedRole === 'organizer' 
+                    ? 'Your organizer account has been created. Please complete your verification to start creating events.'
+                    : 'Your student account has been created successfully!'
+                  }
                 </p>
                 <Button 
                   onClick={() => navigate('/login')}
                   className="bg-fme-blue hover:bg-fme-blue/90"
                 >
-                  Go to Login
+                  {selectedRole === 'organizer' ? 'Complete Verification' : 'Go to Login'}
                 </Button>
               </CardContent>
             </Card>
@@ -143,7 +244,7 @@ export default function Signup() {
       <Header />
       
       <main className="flex-1 py-12">
-        <div className="max-w-2xl w-full mx-auto px-4">
+        <div className="max-w-md w-full mx-auto px-4">
           {/* Header */}
           <div className="text-center mb-8">
             <Link to="/" className="inline-flex items-center justify-center mb-6">
@@ -155,7 +256,7 @@ export default function Signup() {
               Join FindMyEvent
             </h1>
             <p className="text-gray-600">
-              Create your account to discover and organize amazing tech events
+              Create your account to discover amazing tech events
             </p>
           </div>
 
@@ -165,235 +266,319 @@ export default function Signup() {
               <CardTitle className="text-2xl text-center">Create Account</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )}
-
-                {/* Role Selection */}
-                <div className="space-y-3">
-                  <Label>I am a</Label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div 
-                      className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                        selectedRole === 'student' 
-                          ? 'border-fme-blue bg-fme-blue/5' 
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                      onClick={() => setValue('role', 'student')}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <GraduationCap className="w-6 h-6 text-fme-blue" />
-                        <div>
-                          <div className="font-medium">Student</div>
-                          <div className="text-sm text-gray-500">Discover events</div>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div 
-                      className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                        selectedRole === 'organizer' 
-                          ? 'border-fme-orange bg-fme-orange/5' 
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                      onClick={() => setValue('role', 'organizer')}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <Building className="w-6 h-6 text-fme-orange" />
-                        <div>
-                          <div className="font-medium">Organizer</div>
-                          <div className="text-sm text-gray-500">Host events</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Basic Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="full_name">Full Name</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                      <Input
-                        id="full_name"
-                        placeholder="Your full name"
-                        className="pl-10"
-                        {...register('full_name')}
-                      />
-                    </div>
-                    {errors.full_name && (
-                      <p className="text-sm text-red-600">{errors.full_name.message}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="your@email.com"
-                        className="pl-10"
-                        {...register('email')}
-                      />
-                    </div>
-                    {errors.email && (
-                      <p className="text-sm text-red-600">{errors.email.message}</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Password Fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                      <Input
-                        id="password"
-                        type="password"
-                        placeholder="Create password"
-                        className="pl-10"
-                        {...register('password')}
-                      />
-                    </div>
-                    {errors.password && (
-                      <p className="text-sm text-red-600">{errors.password.message}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm Password</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        placeholder="Confirm password"
-                        className="pl-10"
-                        {...register('confirmPassword')}
-                      />
-                    </div>
-                    {errors.confirmPassword && (
-                      <p className="text-sm text-red-600">{errors.confirmPassword.message}</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Student-specific fields */}
-                {selectedRole === 'student' && (
-                  <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="college">College/University</Label>
-                        <Input
-                          id="college"
-                          placeholder="Your institution"
-                          {...register('college')}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="year">Year of Study</Label>
-                        <Select onValueChange={(value) => setValue('year', parseInt(value))}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select year" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {years.map(year => (
-                              <SelectItem key={year} value={year.toString()}>
-                                {year === 1 ? '1st' : year === 2 ? '2nd' : year === 3 ? '3rd' : `${year}th`} Year
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    {/* Interests */}
-                    <div className="space-y-3">
-                      <Label>Interests (select all that apply)</Label>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {eventInterests.map(interest => (
-                          <div
-                            key={interest}
-                            className={`p-3 border rounded-lg cursor-pointer transition-colors text-center ${
-                              selectedInterests.includes(interest)
-                                ? 'border-fme-blue bg-fme-blue/10 text-fme-blue'
-                                : 'border-gray-200 hover:border-gray-300'
-                            }`}
-                            onClick={() => toggleInterest(interest)}
-                          >
-                            <span className="text-sm font-medium capitalize">{interest}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {/* Optional fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number (optional)</Label>
-                    <Input
-                      id="phone"
-                      placeholder="+91 XXXXX XXXXX"
-                      {...register('phone')}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="city">City (optional)</Label>
-                    <Input
-                      id="city"
-                      placeholder="Your city"
-                      {...register('city')}
-                    />
-                  </div>
-                </div>
-
-                {/* Terms agreement */}
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="terms"
-                    onCheckedChange={(checked) => setValue('agreeToTerms', !!checked)}
-                  />
-                  <Label htmlFor="terms" className="text-sm">
-                    I agree to the{' '}
-                    <Link to="/terms" className="text-fme-blue hover:underline">
-                      Terms of Service
-                    </Link>{' '}
-                    and{' '}
-                    <Link to="/privacy" className="text-fme-blue hover:underline">
-                      Privacy Policy
-                    </Link>
-                  </Label>
-                </div>
-                {errors.agreeToTerms && (
-                  <p className="text-sm text-red-600">{errors.agreeToTerms.message}</p>
-                )}
-
+              {/* Google Sign-in */}
+              <div className="mb-6">
                 <Button
-                  type="submit"
-                  className="w-full bg-fme-blue hover:bg-fme-blue/90"
+                  onClick={handleGoogleSignIn}
+                  variant="outline"
+                  className="w-full"
                   disabled={isLoading}
                 >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Creating account...
-                    </>
-                  ) : (
-                    'Create Account'
-                  )}
+                  <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  </svg>
+                  Continue with Google
                 </Button>
-              </form>
+              </div>
+
+              <div className="relative mb-6">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white px-2 text-muted-foreground">Or</span>
+                </div>
+              </div>
+
+              {/* Signup Method Tabs */}
+              <Tabs value={signupMethod} onValueChange={(value) => setSignupMethod(value as 'email' | 'phone')}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="email">
+                    <Mail className="w-4 h-4 mr-2" />
+                    Email
+                  </TabsTrigger>
+                  <TabsTrigger value="phone">
+                    <Phone className="w-4 h-4 mr-2" />
+                    Phone
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="email" className="space-y-4 mt-6">
+                  <form onSubmit={handleEmailSubmit(onEmailSubmit)} className="space-y-4">
+                    {error && (
+                      <Alert variant="destructive">
+                        <AlertDescription>{error}</AlertDescription>
+                      </Alert>
+                    )}
+
+                    {/* Role Selection */}
+                    <div className="space-y-3">
+                      <Label>I am a</Label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div 
+                          className={`p-3 border-2 rounded-lg cursor-pointer transition-colors ${
+                            selectedRole === 'student' 
+                              ? 'border-fme-blue bg-fme-blue/5' 
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                          onClick={() => setEmailValue('role', 'student')}
+                        >
+                          <div className="text-center">
+                            <User className="w-6 h-6 text-fme-blue mx-auto mb-1" />
+                            <div className="font-medium">Student</div>
+                            <div className="text-xs text-gray-500">Discover events</div>
+                          </div>
+                        </div>
+                        
+                        <div 
+                          className={`p-3 border-2 rounded-lg cursor-pointer transition-colors ${
+                            selectedRole === 'organizer' 
+                              ? 'border-fme-orange bg-fme-orange/5' 
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                          onClick={() => setEmailValue('role', 'organizer')}
+                        >
+                          <div className="text-center">
+                            <Calendar className="w-6 h-6 text-fme-orange mx-auto mb-1" />
+                            <div className="font-medium">Organizer</div>
+                            <div className="text-xs text-gray-500">Host events</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="full_name">Full Name</Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                          id="full_name"
+                          placeholder="Your full name"
+                          className="pl-10"
+                          {...registerEmail('full_name')}
+                        />
+                      </div>
+                      {emailErrors.full_name && (
+                        <p className="text-sm text-red-600">{emailErrors.full_name.message}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="your@email.com"
+                          className="pl-10"
+                          {...registerEmail('email')}
+                        />
+                      </div>
+                      {emailErrors.email && (
+                        <p className="text-sm text-red-600">{emailErrors.email.message}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                          id="password"
+                          type="password"
+                          placeholder="Create password"
+                          className="pl-10"
+                          {...registerEmail('password')}
+                        />
+                      </div>
+                      {emailErrors.password && (
+                        <p className="text-sm text-red-600">{emailErrors.password.message}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword">Confirm Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                          id="confirmPassword"
+                          type="password"
+                          placeholder="Confirm password"
+                          className="pl-10"
+                          {...registerEmail('confirmPassword')}
+                        />
+                      </div>
+                      {emailErrors.confirmPassword && (
+                        <p className="text-sm text-red-600">{emailErrors.confirmPassword.message}</p>
+                      )}
+                    </div>
+
+                    <Button
+                      type="submit"
+                      className="w-full bg-fme-blue hover:bg-fme-blue/90"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Creating account...
+                        </>
+                      ) : (
+                        'Create Account'
+                      )}
+                    </Button>
+                  </form>
+                </TabsContent>
+
+                <TabsContent value="phone" className="space-y-4 mt-6">
+                  {!otpSent ? (
+                    <form onSubmit={handlePhoneSubmit(onPhoneSubmit)} className="space-y-4">
+                      {error && (
+                        <Alert variant="destructive">
+                          <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                      )}
+
+                      {/* Role Selection */}
+                      <div className="space-y-3">
+                        <Label>I am a</Label>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div 
+                            className="p-3 border-2 rounded-lg cursor-pointer border-fme-blue bg-fme-blue/5"
+                            onClick={() => setPhoneValue('role', 'student')}
+                          >
+                            <div className="text-center">
+                              <User className="w-6 h-6 text-fme-blue mx-auto mb-1" />
+                              <div className="font-medium">Student</div>
+                            </div>
+                          </div>
+                          
+                          <div 
+                            className="p-3 border-2 rounded-lg cursor-pointer border-gray-200"
+                            onClick={() => setPhoneValue('role', 'organizer')}
+                          >
+                            <div className="text-center">
+                              <Calendar className="w-6 h-6 text-fme-orange mx-auto mb-1" />
+                              <div className="font-medium">Organizer</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="full_name_phone">Full Name</Label>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                          <Input
+                            id="full_name_phone"
+                            placeholder="Your full name"
+                            className="pl-10"
+                            {...registerPhone('full_name')}
+                          />
+                        </div>
+                        {phoneErrors.full_name && (
+                          <p className="text-sm text-red-600">{phoneErrors.full_name.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Phone Number</Label>
+                        <div className="relative">
+                          <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                          <Input
+                            id="phone"
+                            placeholder="+91 XXXXX XXXXX"
+                            className="pl-10"
+                            {...registerPhone('phone')}
+                          />
+                        </div>
+                        {phoneErrors.phone && (
+                          <p className="text-sm text-red-600">{phoneErrors.phone.message}</p>
+                        )}
+                      </div>
+
+                      <Button
+                        type="submit"
+                        className="w-full bg-fme-blue hover:bg-fme-blue/90"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Sending OTP...
+                          </>
+                        ) : (
+                          <>
+                            <MessageSquare className="w-4 h-4 mr-2" />
+                            Send OTP
+                          </>
+                        )}
+                      </Button>
+                    </form>
+                  ) : (
+                    <form onSubmit={handleOTPSubmit(onOTPSubmit)} className="space-y-4">
+                      {error && (
+                        <Alert variant="destructive">
+                          <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                      )}
+
+                      <div className="text-center mb-4">
+                        <MessageSquare className="w-12 h-12 text-fme-blue mx-auto mb-2" />
+                        <h3 className="text-lg font-semibold">Verify Your Phone</h3>
+                        <p className="text-gray-600">
+                          We've sent a 6-digit code to {phoneNumber}
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="otp">Enter OTP</Label>
+                        <Input
+                          id="otp"
+                          placeholder="123456"
+                          maxLength={6}
+                          className="text-center text-2xl tracking-widest"
+                          {...registerOTP('otp')}
+                        />
+                        {otpErrors.otp && (
+                          <p className="text-sm text-red-600">{otpErrors.otp.message}</p>
+                        )}
+                        <p className="text-xs text-gray-500 text-center">
+                          For demo, use: 123456
+                        </p>
+                      </div>
+
+                      <Button
+                        type="submit"
+                        className="w-full bg-fme-blue hover:bg-fme-blue/90"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Verifying...
+                          </>
+                        ) : (
+                          'Verify OTP'
+                        )}
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => setOtpSent(false)}
+                      >
+                        Change Phone Number
+                      </Button>
+                    </form>
+                  )}
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
 
