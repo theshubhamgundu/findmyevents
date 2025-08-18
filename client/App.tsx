@@ -14,6 +14,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import NotFound from "./pages/NotFound";
+import BecomeOrganizer from "./pages/BecomeOrganizer";
 import { AuthProvider } from "./lib/auth-context";
 import { User, Shield, Bell, HelpCircle } from "lucide-react";
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/events" element={<Events />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/create-event" element={<CreateEvent />} />
+          <Route path="/become-organizer" element={<BecomeOrganizer />} />
 
           {/* Auth Pages */}
           <Route path="/login" element={<Login />} />
