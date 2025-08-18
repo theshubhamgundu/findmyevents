@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Calendar, 
   QrCode, 
@@ -18,7 +20,18 @@ import {
   Eye,
   CheckCircle,
   AlertCircle,
-  Building
+  Building,
+  Search,
+  Filter,
+  Star,
+  Target,
+  Fire,
+  Navigation,
+  BookMarked,
+  Loader2,
+  Heart,
+  Share,
+  ExternalLink
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { 
@@ -27,7 +40,8 @@ import {
   getOrganizerEvents,
   getUserNotifications,
   markNotificationAsRead,
-  updateEventAnalytics
+  updateEventAnalytics,
+  getEvents
 } from '@/lib/supabase';
 import { generateTicketQR, downloadQRCode } from '@/lib/qr-utils';
 import { formatCurrency } from '@/lib/payment-utils';
@@ -38,10 +52,16 @@ import type { Ticket, Event, Notification, Organizer } from '@shared/types';
 export default function Dashboard() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
+  const [recommendedEvents, setRecommendedEvents] = useState<Event[]>([]);
+  const [trendingEvents, setTrendingEvents] = useState<Event[]>([]);
+  const [nearbyEvents, setNearbyEvents] = useState<Event[]>([]);
+  const [savedEvents, setSavedEvents] = useState<Event[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [organizer, setOrganizer] = useState<Organizer | null>(null);
   const [loading, setLoading] = useState(true);
   const [generatingQR, setGeneratingQR] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeView, setActiveView] = useState('home');
   const { user, profile, isConfigured } = useAuth();
   const navigate = useNavigate();
 
@@ -63,6 +83,40 @@ export default function Dashboard() {
       // Load user tickets
       const userTickets = await getUserTickets(user.id);
       setTickets(userTickets);
+
+      // Load all events for categorization
+      const allEvents = await getEvents();
+      
+      // For students, categorize events
+      if (profile?.role === 'student') {
+        // Recommended events based on user interests
+        const recommended = allEvents.filter(event => {
+          if (!profile?.interests || profile.interests.length === 0) return true;
+          return profile.interests.some(interest => 
+            event.event_type === interest || event.tags?.some(tag => 
+              profile.interests.includes(tag.toLowerCase())
+            )
+          );
+        }).slice(0, 6);
+
+        // Trending events (mock - in real app would be based on registrations)
+        const trending = allEvents
+          .sort((a, b) => (b.current_participants || 0) - (a.current_participants || 0))
+          .slice(0, 6);
+
+        // Nearby events (mock - in real app would use user location)
+        const nearby = allEvents.filter(event => 
+          profile?.city ? event.city.toLowerCase().includes(profile.city.toLowerCase()) : false
+        ).slice(0, 6);
+
+        // Mock saved events
+        const saved = allEvents.slice(0, 3);
+
+        setRecommendedEvents(recommended);
+        setTrendingEvents(trending);
+        setNearbyEvents(nearby);
+        setSavedEvents(saved);
+      }
 
       // Load organizer data if user is organizer
       if (profile?.role === 'organizer') {
@@ -89,8 +143,6 @@ export default function Dashboard() {
     try {
       setGeneratingQR(ticket.id);
       const qrCode = await generateTicketQR(ticket);
-      
-      // Download QR code
       downloadQRCode(qrCode, `ticket-${ticket.ticket_id}.png`);
     } catch (error) {
       console.error('Error generating QR code:', error);
@@ -110,22 +162,31 @@ export default function Dashboard() {
     }
   };
 
+  const handleSaveEvent = (eventId: string) => {
+    // Mock save functionality
+    console.log('Saving event:', eventId);
+  };
+
+  const handleShareEvent = (event: Event) => {
+    // Mock share functionality
+    if (navigator.share) {
+      navigator.share({
+        title: event.title,
+        text: event.description,
+        url: window.location.origin + `/events/${event.id}`
+      });
+    } else {
+      // Fallback to copy link
+      navigator.clipboard.writeText(window.location.origin + `/events/${event.id}`);
+    }
+  };
+
   const getUpcomingEvents = () => {
     return tickets
       .filter(ticket => {
         if (!ticket.event) return false;
         const eventDate = new Date(ticket.event.start_date);
         return eventDate > new Date() && ticket.status === 'active';
-      })
-      .slice(0, 5);
-  };
-
-  const getPastEvents = () => {
-    return tickets
-      .filter(ticket => {
-        if (!ticket.event) return false;
-        const eventDate = new Date(ticket.event.end_date);
-        return eventDate < new Date();
       })
       .slice(0, 5);
   };
@@ -187,350 +248,401 @@ export default function Dashboard() {
   }
 
   const upcomingEvents = getUpcomingEvents();
-  const pastEvents = getPastEvents();
   const unreadNotifications = getUnreadNotifications();
 
+  // Student Dashboard Layout
+  if (profile?.role === 'student') {
+    return (
+      <div className="min-h-screen flex flex-col bg-gray-50">
+        <Header />
+        
+        <main className="flex-1">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {/* Header with Search */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    Hi, {profile?.full_name?.split(' ')[0]}! 👋
+                  </h1>
+                  <p className="text-gray-600">Discover amazing tech events near you</p>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Button variant="outline" onClick={() => setActiveView('notifications')}>
+                    <Bell className="w-4 h-4 mr-2" />
+                    {unreadNotifications.length > 0 && (
+                      <Badge variant="destructive" className="ml-1 px-1 min-w-[1.2rem] h-5">
+                        {unreadNotifications.length}
+                      </Badge>
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Search Bar */}
+              <div className="relative max-w-2xl">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  type="text"
+                  placeholder="Search events, colleges, organizers..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-12 py-3"
+                />
+                <Button 
+                  size="sm" 
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                  onClick={() => navigate(`/events?q=${searchQuery}`)}
+                >
+                  <Filter className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin" />
+              </div>
+            ) : (
+              <>
+                {/* Quick Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                  <Card>
+                    <CardContent className="p-4 text-center">
+                      <Calendar className="w-8 h-8 text-fme-blue mx-auto mb-2" />
+                      <p className="text-2xl font-bold text-gray-900">{upcomingEvents.length}</p>
+                      <p className="text-sm text-gray-600">Upcoming</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4 text-center">
+                      <Ticket className="w-8 h-8 text-fme-orange mx-auto mb-2" />
+                      <p className="text-2xl font-bold text-gray-900">{tickets.length}</p>
+                      <p className="text-sm text-gray-600">My Tickets</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4 text-center">
+                      <BookMarked className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                      <p className="text-2xl font-bold text-gray-900">{savedEvents.length}</p>
+                      <p className="text-sm text-gray-600">Saved</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4 text-center">
+                      <Bell className="w-8 h-8 text-red-500 mx-auto mb-2" />
+                      <p className="text-2xl font-bold text-gray-900">{unreadNotifications.length}</p>
+                      <p className="text-sm text-gray-600">Alerts</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Main Content Tabs */}
+                <Tabs value={activeView} onValueChange={setActiveView}>
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="home">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Home
+                    </TabsTrigger>
+                    <TabsTrigger value="explore">
+                      <Search className="w-4 h-4 mr-2" />
+                      Explore
+                    </TabsTrigger>
+                    <TabsTrigger value="tickets">
+                      <Ticket className="w-4 h-4 mr-2" />
+                      My Events
+                    </TabsTrigger>
+                    <TabsTrigger value="profile">
+                      <Users className="w-4 h-4 mr-2" />
+                      Profile
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* Home Feed */}
+                  <TabsContent value="home" className="space-y-8">
+                    {/* Recommended Events */}
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-semibold flex items-center">
+                          <Target className="w-5 h-5 mr-2 text-fme-blue" />
+                          Recommended for You
+                        </h2>
+                        <Button variant="outline" size="sm" onClick={() => setActiveView('explore')}>
+                          View All
+                        </Button>
+                      </div>
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {recommendedEvents.map(event => (
+                          <EventCard 
+                            key={event.id} 
+                            event={event} 
+                            onSave={handleSaveEvent}
+                            onShare={handleShareEvent}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Trending Events */}
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-semibold flex items-center">
+                          <Fire className="w-5 h-5 mr-2 text-fme-orange" />
+                          Trending Events
+                        </h2>
+                        <Button variant="outline" size="sm" onClick={() => setActiveView('explore')}>
+                          View All
+                        </Button>
+                      </div>
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {trendingEvents.map(event => (
+                          <EventCard 
+                            key={event.id} 
+                            event={event} 
+                            onSave={handleSaveEvent}
+                            onShare={handleShareEvent}
+                            showTrending
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Nearby Events */}
+                    {nearbyEvents.length > 0 && (
+                      <div>
+                        <div className="flex items-center justify-between mb-4">
+                          <h2 className="text-xl font-semibold flex items-center">
+                            <Navigation className="w-5 h-5 mr-2 text-green-500" />
+                            Nearby Events
+                          </h2>
+                          <Button variant="outline" size="sm" onClick={() => setActiveView('explore')}>
+                            View All
+                          </Button>
+                        </div>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {nearbyEvents.map(event => (
+                            <EventCard 
+                              key={event.id} 
+                              event={event} 
+                              onSave={handleSaveEvent}
+                              onShare={handleShareEvent}
+                              showDistance
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  {/* Explore */}
+                  <TabsContent value="explore">
+                    <div className="text-center py-12">
+                      <Search className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">Explore All Events</h3>
+                      <p className="text-gray-600 mb-6">
+                        Discover events by category, location, or search
+                      </p>
+                      <Button 
+                        onClick={() => navigate('/events')}
+                        className="bg-fme-blue hover:bg-fme-blue/90"
+                      >
+                        Browse All Events
+                      </Button>
+                    </div>
+                  </TabsContent>
+
+                  {/* My Events/Tickets */}
+                  <TabsContent value="tickets" className="space-y-6">
+                    {upcomingEvents.length === 0 ? (
+                      <div className="text-center py-12">
+                        <Ticket className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2">No Events Yet</h3>
+                        <p className="text-gray-600 mb-6">
+                          Register for events to see your tickets here
+                        </p>
+                        <Button 
+                          onClick={() => navigate('/events')}
+                          className="bg-fme-blue hover:bg-fme-blue/90"
+                        >
+                          Find Events
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <h2 className="text-xl font-semibold">My Registered Events</h2>
+                        {upcomingEvents.map(ticket => (
+                          <Card key={ticket.id}>
+                            <CardContent className="p-6">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-4">
+                                  <div className="w-12 h-12 bg-fme-blue/10 rounded-lg flex items-center justify-center">
+                                    <Calendar className="w-6 h-6 text-fme-blue" />
+                                  </div>
+                                  <div>
+                                    <h4 className="font-semibold text-gray-900">{ticket.event?.title}</h4>
+                                    <div className="flex items-center text-sm text-gray-600 space-x-4">
+                                      <span className="flex items-center">
+                                        <Clock className="w-4 h-4 mr-1" />
+                                        {new Date(ticket.event?.start_date!).toLocaleDateString()}
+                                      </span>
+                                      <span className="flex items-center">
+                                        <MapPin className="w-4 h-4 mr-1" />
+                                        {ticket.event?.venue}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <Button 
+                                  size="sm" 
+                                  onClick={() => handleGenerateQR(ticket)}
+                                  disabled={generatingQR === ticket.id}
+                                  className="bg-fme-blue hover:bg-fme-blue/90"
+                                >
+                                  <QrCode className="w-4 h-4 mr-2" />
+                                  {generatingQR === ticket.id ? 'Generating...' : 'Get QR'}
+                                </Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </TabsContent>
+
+                  {/* Profile */}
+                  <TabsContent value="profile">
+                    <div className="text-center py-12">
+                      <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">Profile Settings</h3>
+                      <p className="text-gray-600 mb-6">
+                        Manage your preferences and account settings
+                      </p>
+                      <Button 
+                        onClick={() => navigate('/profile')}
+                        className="bg-fme-blue hover:bg-fme-blue/90"
+                      >
+                        Edit Profile
+                      </Button>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </>
+            )}
+          </div>
+        </main>
+        
+        <Footer />
+      </div>
+    );
+  }
+
+  // Organizer Dashboard (existing implementation)
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Welcome Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome back, {profile?.full_name}! 👋
+              Organizer Dashboard
             </h1>
             <p className="text-gray-600">
-              {profile?.role === 'organizer' 
-                ? 'Manage your events and track registrations' 
-                : 'Keep track of your event registrations and tickets'
-              }
+              Manage your events and track registrations
             </p>
           </div>
-
-          {/* Organizer Verification Status */}
-          {profile?.role === 'organizer' && (
-            <div className="mb-6">
-              {!organizer ? (
-                <Alert>
-                  <Building className="h-4 w-4" />
-                  <AlertDescription className="flex items-center justify-between">
-                    <span>Complete your organizer profile to start creating events</span>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => navigate('/become-organizer')}
-                    >
-                      Complete Profile
-                    </Button>
-                  </AlertDescription>
-                </Alert>
-              ) : organizer.verification_status === 'pending' ? (
-                <Alert>
-                  <Clock className="h-4 w-4" />
-                  <AlertDescription>
-                    Your organizer application is under review. Events will be published after approval.
-                  </AlertDescription>
-                </Alert>
-              ) : organizer.verification_status === 'rejected' ? (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    Your organizer application was rejected. {organizer.rejection_reason}
-                  </AlertDescription>
-                </Alert>
-              ) : (
-                <Alert className="border-green-200 bg-green-50">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="text-green-800">
-                    Your organizer account is verified! You can now create and publish events.
-                  </AlertDescription>
-                </Alert>
-              )}
-            </div>
-          )}
-
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              {[1, 2, 3, 4].map((i) => (
-                <Card key={i} className="animate-pulse">
-                  <CardContent className="p-6">
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-8 bg-gray-200 rounded"></div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <>
-              {/* Quick Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">Upcoming Events</p>
-                        <p className="text-2xl font-bold text-gray-900">{upcomingEvents.length}</p>
-                      </div>
-                      <Calendar className="w-8 h-8 text-fme-blue" />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">My Tickets</p>
-                        <p className="text-2xl font-bold text-gray-900">{tickets.length}</p>
-                      </div>
-                      <Ticket className="w-8 h-8 text-fme-orange" />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">Events Attended</p>
-                        <p className="text-2xl font-bold text-gray-900">{pastEvents.length}</p>
-                      </div>
-                      <CheckCircle className="w-8 h-8 text-green-500" />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">Notifications</p>
-                        <p className="text-2xl font-bold text-gray-900">{unreadNotifications.length}</p>
-                      </div>
-                      <Bell className="w-8 h-8 text-red-500" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div className="grid lg:grid-cols-3 gap-8">
-                {/* Main Content */}
-                <div className="lg:col-span-2 space-y-8">
-                  {/* Upcoming Events */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
-                        <span>Upcoming Events</span>
-                        <Link to="/events">
-                          <Button variant="outline" size="sm">
-                            <Eye className="w-4 h-4 mr-2" />
-                            Browse More
-                          </Button>
-                        </Link>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {upcomingEvents.length === 0 ? (
-                        <div className="text-center py-8">
-                          <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                          <h3 className="text-lg font-medium text-gray-900 mb-2">No upcoming events</h3>
-                          <p className="text-gray-600 mb-4">Explore events and register for exciting tech events!</p>
-                          <Link to="/events">
-                            <Button className="bg-fme-blue hover:bg-fme-blue/90">
-                              Browse Events
-                            </Button>
-                          </Link>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          {upcomingEvents.map((ticket) => (
-                            <div key={ticket.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                              <div className="flex items-center space-x-4">
-                                <div className="w-12 h-12 bg-fme-blue/10 rounded-lg flex items-center justify-center">
-                                  <Calendar className="w-6 h-6 text-fme-blue" />
-                                </div>
-                                <div>
-                                  <h4 className="font-semibold text-gray-900">{ticket.event?.title}</h4>
-                                  <div className="flex items-center text-sm text-gray-600 space-x-4">
-                                    <span className="flex items-center">
-                                      <Clock className="w-4 h-4 mr-1" />
-                                      {new Date(ticket.event?.start_date!).toLocaleDateString()}
-                                    </span>
-                                    <span className="flex items-center">
-                                      <MapPin className="w-4 h-4 mr-1" />
-                                      {ticket.event?.venue}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                              <Button 
-                                size="sm" 
-                                className="bg-fme-blue hover:bg-fme-blue/90"
-                                onClick={() => handleGenerateQR(ticket)}
-                                disabled={generatingQR === ticket.id}
-                              >
-                                <QrCode className="w-4 h-4 mr-2" />
-                                {generatingQR === ticket.id ? 'Generating...' : 'Get QR'}
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Organizer Events (if organizer) */}
-                  {profile?.role === 'organizer' && organizer && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center justify-between">
-                          <span>My Events</span>
-                          <Link to="/create-event">
-                            <Button className="bg-fme-orange hover:bg-fme-orange/90" size="sm">
-                              <Plus className="w-4 h-4 mr-2" />
-                              Create Event
-                            </Button>
-                          </Link>
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        {events.length === 0 ? (
-                          <div className="text-center py-8">
-                            <Building className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">No events created</h3>
-                            <p className="text-gray-600 mb-4">Start creating amazing tech events for students!</p>
-                            <Link to="/create-event">
-                              <Button className="bg-fme-orange hover:bg-fme-orange/90">
-                                <Plus className="w-4 h-4 mr-2" />
-                                Create Your First Event
-                              </Button>
-                            </Link>
-                          </div>
-                        ) : (
-                          <div className="space-y-4">
-                            {events.slice(0, 3).map((event) => (
-                              <div key={event.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                <div>
-                                  <div className="flex items-center space-x-2 mb-1">
-                                    <h4 className="font-semibold text-gray-900">{event.title}</h4>
-                                    <Badge 
-                                      variant={event.event_status === 'published' ? 'default' : 'secondary'}
-                                    >
-                                      {event.event_status}
-                                    </Badge>
-                                  </div>
-                                  <div className="flex items-center text-sm text-gray-600 space-x-4">
-                                    <span className="flex items-center">
-                                      <Users className="w-4 h-4 mr-1" />
-                                      {event.current_participants} registered
-                                    </span>
-                                    <span className="flex items-center">
-                                      <Calendar className="w-4 h-4 mr-1" />
-                                      {new Date(event.start_date).toLocaleDateString()}
-                                    </span>
-                                  </div>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  <Button variant="outline" size="sm">
-                                    <TrendingUp className="w-4 h-4 mr-2" />
-                                    Analytics
-                                  </Button>
-                                  <Button variant="outline" size="sm">
-                                    <Users className="w-4 h-4 mr-2" />
-                                    Attendees
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-
-                {/* Sidebar */}
-                <div className="space-y-6">
-                  {/* Quick Actions */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Quick Actions</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <Link to="/events">
-                        <Button className="w-full bg-fme-blue hover:bg-fme-blue/90">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Explore Events
-                        </Button>
-                      </Link>
-                      {profile?.role === 'organizer' && organizer && (
-                        <Link to="/create-event">
-                          <Button variant="outline" className="w-full">
-                            <Building className="w-4 h-4 mr-2" />
-                            Create Event
-                          </Button>
-                        </Link>
-                      )}
-                      {profile?.role === 'student' && (
-                        <Link to="/become-organizer">
-                          <Button variant="outline" className="w-full">
-                            <Building className="w-4 h-4 mr-2" />
-                            Become Organizer
-                          </Button>
-                        </Link>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Recent Notifications */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Recent Notifications</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {notifications.length === 0 ? (
-                        <div className="text-center py-4">
-                          <Bell className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                          <p className="text-sm text-gray-600">No notifications yet</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-3 text-sm">
-                          {notifications.slice(0, 5).map((notification) => (
-                            <div 
-                              key={notification.id} 
-                              className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                                notification.is_read ? 'bg-gray-50' : 'bg-blue-50 border border-blue-200'
-                              }`}
-                              onClick={() => handleMarkNotificationRead(notification.id)}
-                            >
-                              <div className="flex items-start space-x-2">
-                                <div className={`w-2 h-2 rounded-full mt-2 ${
-                                  notification.is_read ? 'bg-gray-400' : 'bg-blue-500'
-                                }`}></div>
-                                <div className="flex-1">
-                                  <h4 className="font-medium text-gray-900">{notification.title}</h4>
-                                  <p className="text-gray-600 text-xs mt-1">{notification.message}</p>
-                                  <p className="text-gray-400 text-xs mt-1">
-                                    {new Date(notification.created_at).toLocaleDateString()}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </>
-          )}
+          
+          <div className="text-center py-12">
+            <Building className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              Complete organizer dashboard functionality
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Advanced organizer features will be implemented based on the organizer flow specifications.
+            </p>
+            <Button 
+              onClick={() => navigate('/create-event')}
+              className="bg-fme-orange hover:bg-fme-orange/90"
+            >
+              Create Event
+            </Button>
+          </div>
         </div>
       </main>
-      
       <Footer />
     </div>
+  );
+}
+
+// Event Card Component
+function EventCard({ 
+  event, 
+  onSave, 
+  onShare, 
+  showTrending = false, 
+  showDistance = false 
+}: { 
+  event: Event;
+  onSave: (id: string) => void;
+  onShare: (event: Event) => void;
+  showTrending?: boolean;
+  showDistance?: boolean;
+}) {
+  const navigate = useNavigate();
+  const eventDate = new Date(event.start_date);
+  const cheapestTicket = event.ticket_types?.reduce((min, ticket) => 
+    ticket.price < min.price ? ticket : min
+  ) || event.ticket_types?.[0];
+
+  return (
+    <Card className="hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer group">
+      <CardContent className="p-4">
+        <div className="flex justify-between items-start mb-3">
+          <Badge variant="outline" className="text-xs">
+            {event.event_type.toUpperCase()}
+          </Badge>
+          <div className="flex items-center space-x-1">
+            {showTrending && <Fire className="w-4 h-4 text-fme-orange" />}
+            {showDistance && <Navigation className="w-4 h-4 text-green-500" />}
+            <button onClick={() => onSave(event.id)}>
+              <Heart className="w-4 h-4 text-gray-400 hover:text-red-500" />
+            </button>
+            <button onClick={() => onShare(event)}>
+              <Share className="w-4 h-4 text-gray-400 hover:text-fme-blue" />
+            </button>
+          </div>
+        </div>
+
+        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{event.title}</h3>
+        
+        <div className="space-y-1 mb-3 text-sm text-gray-600">
+          <div className="flex items-center">
+            <Calendar className="w-3 h-3 mr-2" />
+            {eventDate.toLocaleDateString()}
+          </div>
+          <div className="flex items-center">
+            <MapPin className="w-3 h-3 mr-2" />
+            <span className="truncate">{event.city}</span>
+          </div>
+          <div className="flex items-center">
+            <Users className="w-3 h-3 mr-2" />
+            {event.current_participants} registered
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="text-sm font-semibold text-fme-orange">
+            {cheapestTicket?.price === 0 ? 'Free' : `₹${cheapestTicket?.price}`}
+          </div>
+          <Button 
+            size="sm" 
+            className="bg-fme-blue hover:bg-fme-blue/90 opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={() => navigate(`/events/${event.id}`)}
+          >
+            <ExternalLink className="w-3 h-3 mr-1" />
+            View
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
