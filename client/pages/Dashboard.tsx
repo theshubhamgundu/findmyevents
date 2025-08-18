@@ -412,7 +412,7 @@ export default function Dashboard() {
                       <div>
                         <div className="flex items-center justify-between mb-4">
                           <h2 className="text-xl font-semibold flex items-center">
-                            <Navigation className="w-5 h-5 mr-2 text-green-500" />
+                            <Navigation2 className="w-5 h-5 mr-2 text-green-500" />
                             Nearby Events
                           </h2>
                           <Button variant="outline" size="sm" onClick={() => setActiveView('explore')}>
