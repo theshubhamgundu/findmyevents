@@ -5,10 +5,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Menu, X, Calendar, Search, User, Bell, LogOut, Settings, LayoutDashboard as DashboardIcon } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import ConfigBanner from './ConfigBanner';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, isConfigured } = useAuth();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -21,7 +22,8 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b sticky top-0 z-50">
+    <>
+      <header className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -196,6 +198,11 @@ export default function Header() {
           </div>
         )}
       </div>
-    </header>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <ConfigBanner isSupabaseConfigured={isConfigured} />
+      </div>
+    </>
   );
 }
