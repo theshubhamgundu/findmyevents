@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
-import { supabase, getCurrentProfile } from './supabase';
+import { supabase, getCurrentProfile, isSupabaseConfigured } from './supabase';
 import type { Profile } from '@shared/types';
 
 interface AuthContextType {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
+  isConfigured: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, profileData: Partial<Profile>) => Promise<void>;
   signOut: () => Promise<void>;
@@ -21,6 +22,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // If Supabase is not configured, don't try to connect
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return;
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -29,6 +36,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setLoading(false);
       }
+    }).catch((error) => {
+      console.warn('Failed to get initial session:', error);
+      setLoading(false);
     });
 
     // Listen for auth changes
@@ -59,6 +69,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Authentication is not available. Please configure Supabase connection.');
+    }
+    
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -67,6 +81,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signUp = async (email: string, password: string, profileData: Partial<Profile>) => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Authentication is not available. Please configure Supabase connection.');
+    }
+    
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -100,11 +118,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    if (!isSupabaseConfigured) {
+      return;
+    }
+    
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {
+    if (!isSupabaseConfigured) {
+      throw new Error('Profile updates are not available. Please configure Supabase connection.');
+    }
+    
     if (!user) throw new Error('No user logged in');
 
     const { error } = await supabase
@@ -122,6 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     profile,
     loading,
+    isConfigured: isSupabaseConfigured,
     signIn,
     signUp,
     signOut,
