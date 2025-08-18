@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import HealthCheck from '@/components/HealthCheck';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
   Calendar, 
@@ -24,6 +25,9 @@ export default function Index() {
   return (
     <div className="min-h-screen">
       <Header />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <HealthCheck />
+      </div>
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-fme-blue/10 via-white to-fme-orange/10 py-20 lg:py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
