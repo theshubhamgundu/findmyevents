@@ -1,8 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 
 // Support both VITE_ and NEXT_PUBLIC_ prefixes for compatibility
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl =
+  import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey =
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Validate URL format
 const isValidUrl = (url: string): boolean => {
@@ -164,14 +167,16 @@ export const signOut = async () => {
 // Google Sign-in
 export const signInWithGoogle = async () => {
   if (!supabase) {
-    throw new Error('Authentication is not available. Please configure Supabase connection.');
+    throw new Error(
+      "Authentication is not available. Please configure Supabase connection.",
+    );
   }
 
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'google',
+    provider: "google",
     options: {
-      redirectTo: `${window.location.origin}/dashboard`
-    }
+      redirectTo: `${window.location.origin}/dashboard`,
+    },
   });
 
   if (error) throw error;
@@ -181,7 +186,9 @@ export const signInWithGoogle = async () => {
 // Phone OTP Sign-in
 export const signInWithPhone = async (phone: string) => {
   if (!supabase) {
-    throw new Error('Authentication is not available. Please configure Supabase connection.');
+    throw new Error(
+      "Authentication is not available. Please configure Supabase connection.",
+    );
   }
 
   const { data, error } = await supabase.auth.signInWithOtp({
@@ -195,13 +202,15 @@ export const signInWithPhone = async (phone: string) => {
 // Verify OTP
 export const verifyOtp = async (phone: string, token: string) => {
   if (!supabase) {
-    throw new Error('Authentication is not available. Please configure Supabase connection.');
+    throw new Error(
+      "Authentication is not available. Please configure Supabase connection.",
+    );
   }
 
   const { data, error } = await supabase.auth.verifyOtp({
     phone,
     token,
-    type: 'sms',
+    type: "sms",
   });
 
   if (error) throw error;

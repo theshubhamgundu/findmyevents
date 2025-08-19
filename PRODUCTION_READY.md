@@ -13,12 +13,16 @@
 Since you've already set environment variables in Vercel with `NEXT_PUBLIC_*` prefixes, you have two options:
 
 ### Option A: Keep Current Vercel Variables (Recommended)
+
 Your app now detects both prefixes, so it should work as-is with:
+
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 ### Option B: Rename Variables in Vercel
+
 Go to Vercel → Your Project → Settings → Environment Variables and rename:
+
 - `NEXT_PUBLIC_SUPABASE_URL` → `VITE_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` → `VITE_SUPABASE_ANON_KEY`
 
@@ -52,6 +56,7 @@ Google sign-in is now enabled! Make sure you have:
 Your app is now production-ready! The 404 error should be resolved with the updated Vercel configuration.
 
 **Next Deploy Steps:**
+
 1. Push your code changes
 2. Vercel will automatically deploy
 3. Test the live application
