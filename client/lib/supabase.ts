@@ -161,6 +161,53 @@ export const signOut = async () => {
   if (error) throw error;
 };
 
+// Google Sign-in
+export const signInWithGoogle = async () => {
+  if (!supabase) {
+    throw new Error('Authentication is not available. Please configure Supabase connection.');
+  }
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/dashboard`
+    }
+  });
+
+  if (error) throw error;
+  return data;
+};
+
+// Phone OTP Sign-in
+export const signInWithPhone = async (phone: string) => {
+  if (!supabase) {
+    throw new Error('Authentication is not available. Please configure Supabase connection.');
+  }
+
+  const { data, error } = await supabase.auth.signInWithOtp({
+    phone,
+  });
+
+  if (error) throw error;
+  return data;
+};
+
+// Verify OTP
+export const verifyOtp = async (phone: string, token: string) => {
+  if (!supabase) {
+    throw new Error('Authentication is not available. Please configure Supabase connection.');
+  }
+
+  const { data, error } = await supabase.auth.verifyOtp({
+    phone,
+    token,
+    type: 'sms',
+  });
+
+  if (error) throw error;
+  return data;
+};
+
 // Event management
 export const getEvents = async (filters?: any) => {
   if (!supabase) return [];
