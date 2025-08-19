@@ -205,6 +205,7 @@ export default function Signup() {
   };
 
   const handleOnboardingComplete = () => {
+    console.log('Onboarding completed, navigating to dashboard...');
     setShowOnboarding(false);
     navigate("/dashboard");
   };
