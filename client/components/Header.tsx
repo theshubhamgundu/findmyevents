@@ -5,7 +5,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Menu, X, Calendar, Search, User, Bell, LogOut, Settings, LayoutDashboard as DashboardIcon } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
-import ConfigBanner from './ConfigBanner';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -199,10 +198,6 @@ export default function Header() {
         )}
       </div>
       </header>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <ConfigBanner isSupabaseConfigured={isConfigured} />
-      </div>
     </>
   );
 }
