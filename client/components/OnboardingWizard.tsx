@@ -39,7 +39,7 @@ interface OnboardingWizardProps {
 const eventTypes = [
   { id: 'hackathon', label: 'Hackathons', icon: '🖥️', description: 'Coding competitions & innovation challenges' },
   { id: 'workshop', label: 'Workshops', icon: '🛠️', description: 'Hands-on learning sessions' },
-  { id: 'seminar', label: 'Seminars', icon: '���', description: 'Educational talks & presentations' },
+  { id: 'seminar', label: 'Seminars', icon: '🎤', description: 'Educational talks & presentations' },
   { id: 'ideathon', label: 'Ideathons', icon: '💡', description: 'Idea generation & pitching events' },
   { id: 'all', label: 'All Events', icon: '✅', description: 'Show me everything!' },
 ];
@@ -135,6 +135,7 @@ export default function OnboardingWizard({ user, onComplete }: OnboardingWizardP
       // Mark onboarding as completed before calling onComplete
       localStorage.setItem('onboarding_completed', 'true');
 
+      console.log('Onboarding completed, calling onComplete callback...');
       onComplete();
     } catch (error) {
       console.error('Error saving onboarding preferences:', error);
