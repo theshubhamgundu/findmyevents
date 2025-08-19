@@ -14,12 +14,23 @@ export interface Profile {
   full_name: string;
   avatar_url?: string;
   role: UserRole;
-  college?: string;
-  year?: number;
   phone?: string;
+  date_of_birth?: string;
+  gender?: string;
+  college?: string;
+  course?: string;
+  graduation_year?: number;
   city?: string;
-  interests: string[];
-  notification_preferences: {
+  state?: string;
+  country?: string;
+  bio?: string;
+  interests?: string[];
+  preferred_event_types?: string[];
+  preferred_duration?: string[];
+  preferred_location?: string[];
+  community_channels?: any;
+  is_verified?: boolean;
+  notification_preferences?: {
     email: boolean;
     whatsapp: boolean;
     telegram: boolean;
