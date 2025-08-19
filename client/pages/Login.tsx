@@ -124,9 +124,27 @@ export default function Login() {
 
       // Mock successful login
       navigate('/dashboard');
-      
+
     } catch (err: any) {
       setError(err.message || 'OTP verification failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+
+      if (!isConfigured) {
+        setError('Authentication is not available. Please configure Supabase connection.');
+        return;
+      }
+
+      await signInWithGoogle();
+    } catch (err: any) {
+      setError(err.message || 'Google sign-in failed');
     } finally {
       setIsLoading(false);
     }
