@@ -101,11 +101,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           email: data.user.email!,
           full_name: profileData.full_name!,
           role: profileData.role || 'student',
-          college: profileData.college,
-          year: profileData.year,
-          phone: profileData.phone,
-          city: profileData.city,
-          interests: profileData.interests || [],
           notification_preferences: {
             email: true,
             whatsapp: false,
