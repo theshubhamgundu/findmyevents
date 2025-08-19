@@ -1,11 +1,22 @@
 // Core Types for FindMyEvent Platform
 
-export type UserRole = 'student' | 'organizer' | 'admin';
-export type VerificationStatus = 'pending' | 'approved' | 'rejected';
-export type EventStatus = 'draft' | 'pending' | 'approved' | 'published' | 'cancelled';
-export type EventType = 'hackathon' | 'workshop' | 'seminar' | 'fest' | 'ideathon' | 'other';
-export type TicketStatus = 'active' | 'used' | 'cancelled' | 'refunded';
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+export type UserRole = "student" | "organizer" | "admin";
+export type VerificationStatus = "pending" | "approved" | "rejected";
+export type EventStatus =
+  | "draft"
+  | "pending"
+  | "approved"
+  | "published"
+  | "cancelled";
+export type EventType =
+  | "hackathon"
+  | "workshop"
+  | "seminar"
+  | "fest"
+  | "ideathon"
+  | "other";
+export type TicketStatus = "active" | "used" | "cancelled" | "refunded";
+export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
 
 // User Profile
 export interface Profile {
@@ -44,7 +55,7 @@ export interface Organizer {
   id: string;
   user_id: string;
   organization_name: string;
-  organization_type: 'college' | 'club' | 'startup' | 'company';
+  organization_type: "college" | "club" | "startup" | "company";
   official_email?: string;
   website_url?: string;
   social_links?: {
@@ -202,7 +213,7 @@ export interface CreateEventRequest {
     phone?: string;
     website?: string;
   };
-  ticket_types: Omit<TicketType, 'id' | 'event_id' | 'sold' | 'created_at'>[];
+  ticket_types: Omit<TicketType, "id" | "event_id" | "sold" | "created_at">[];
   organizer_upi_id?: string;
 }
 
@@ -234,7 +245,7 @@ export interface UpdateProfileRequest {
 
 export interface CreateOrganizerRequest {
   organization_name: string;
-  organization_type: 'college' | 'club' | 'startup' | 'company';
+  organization_type: "college" | "club" | "startup" | "company";
   official_email?: string;
   website_url?: string;
   social_links?: {
@@ -264,8 +275,8 @@ export interface EventFilters {
 export interface EventSearchParams {
   query?: string;
   filters?: EventFilters;
-  sort_by?: 'date' | 'price' | 'popularity';
-  sort_order?: 'asc' | 'desc';
+  sort_by?: "date" | "price" | "popularity";
+  sort_order?: "asc" | "desc";
   page?: number;
   limit?: number;
 }
@@ -316,7 +327,7 @@ export interface QRCodeData {
   ticket_id: string;
   event_id: string;
   user_id: string;
-  type: 'individual' | 'team';
+  type: "individual" | "team";
   issued_at: string;
 }
 

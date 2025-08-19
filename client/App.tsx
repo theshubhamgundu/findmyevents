@@ -30,84 +30,113 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <BrowserRouter>
-        <Routes>
-          {/* Main Pages */}
-          <Route path="/" element={<Index />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/create-event" element={<CreateEvent />} />
-          <Route path="/become-organizer" element={<BecomeOrganizer />} />
-          <Route path="/manage-event/:eventId" element={<ManageEvent />} />
-          <Route path="/admin" element={<AdminPanel />} />
+          <Routes>
+            {/* Main Pages */}
+            <Route path="/" element={<Index />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/create-event" element={<CreateEvent />} />
+            <Route path="/become-organizer" element={<BecomeOrganizer />} />
+            <Route path="/manage-event/:eventId" element={<ManageEvent />} />
+            <Route path="/admin" element={<AdminPanel />} />
 
-          {/* Auth Pages */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
+            {/* Auth Pages */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
 
-          {/* Event Types */}
-          <Route path="/hackathons" element={
-            <PlaceholderPage
-              title="Hackathons"
-              description="Discover amazing hackathons happening across India's top colleges."
+            {/* Event Types */}
+            <Route
+              path="/hackathons"
+              element={
+                <PlaceholderPage
+                  title="Hackathons"
+                  description="Discover amazing hackathons happening across India's top colleges."
+                />
+              }
             />
-          } />
-          <Route path="/workshops" element={
-            <PlaceholderPage
-              title="Workshops"
-              description="Learn new skills through hands-on workshops by industry experts."
+            <Route
+              path="/workshops"
+              element={
+                <PlaceholderPage
+                  title="Workshops"
+                  description="Learn new skills through hands-on workshops by industry experts."
+                />
+              }
             />
-          } />
-          <Route path="/seminars" element={
-            <PlaceholderPage
-              title="Seminars"
-              description="Attend insightful seminars and talks by industry leaders."
+            <Route
+              path="/seminars"
+              element={
+                <PlaceholderPage
+                  title="Seminars"
+                  description="Attend insightful seminars and talks by industry leaders."
+                />
+              }
             />
-          } />
-          <Route path="/fests" element={
-            <PlaceholderPage
-              title="College Fests"
-              description="Experience the excitement of college technical festivals."
+            <Route
+              path="/fests"
+              element={
+                <PlaceholderPage
+                  title="College Fests"
+                  description="Experience the excitement of college technical festivals."
+                />
+              }
             />
-          } />
 
-          {/* Other Pages */}
-          <Route path="/verification" element={
-            <PlaceholderPage
-              title="Organizer Verification"
-              description="Get verified to host events and reach thousands of students."
-              icon={<Shield className="w-12 h-12 text-green-500 mx-auto" />}
+            {/* Other Pages */}
+            <Route
+              path="/verification"
+              element={
+                <PlaceholderPage
+                  title="Organizer Verification"
+                  description="Get verified to host events and reach thousands of students."
+                  icon={<Shield className="w-12 h-12 text-green-500 mx-auto" />}
+                />
+              }
             />
-          } />
-          <Route path="/help" element={
-            <PlaceholderPage
-              title="Help Center"
-              description="Find answers to common questions and get support."
-              icon={<HelpCircle className="w-12 h-12 text-fme-blue mx-auto" />}
+            <Route
+              path="/help"
+              element={
+                <PlaceholderPage
+                  title="Help Center"
+                  description="Find answers to common questions and get support."
+                  icon={
+                    <HelpCircle className="w-12 h-12 text-fme-blue mx-auto" />
+                  }
+                />
+              }
             />
-          } />
-          <Route path="/contact" element={
-            <PlaceholderPage
-              title="Contact Us"
-              description="Get in touch with our team for any questions or support."
+            <Route
+              path="/contact"
+              element={
+                <PlaceholderPage
+                  title="Contact Us"
+                  description="Get in touch with our team for any questions or support."
+                />
+              }
             />
-          } />
-          <Route path="/privacy" element={
-            <PlaceholderPage
-              title="Privacy Policy"
-              description="Learn how we protect your data and respect your privacy."
+            <Route
+              path="/privacy"
+              element={
+                <PlaceholderPage
+                  title="Privacy Policy"
+                  description="Learn how we protect your data and respect your privacy."
+                />
+              }
             />
-          } />
-          <Route path="/terms" element={
-            <PlaceholderPage
-              title="Terms of Service"
-              description="Read our terms and conditions for using FindMyEvent."
+            <Route
+              path="/terms"
+              element={
+                <PlaceholderPage
+                  title="Terms of Service"
+                  description="Read our terms and conditions for using FindMyEvent."
+                />
+              }
             />
-          } />
 
-          {/* Catch-all route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* Catch-all route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>
