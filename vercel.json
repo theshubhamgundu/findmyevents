@@ -2,6 +2,10 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/spa",
   "framework": "vite",
+  "env": {
+    "VITE_SUPABASE_URL": "@next_public_supabase_url",
+    "VITE_SUPABASE_ANON_KEY": "@next_public_supabase_anon_key"
+  },
   "rewrites": [
     {
       "source": "/(.*)",
