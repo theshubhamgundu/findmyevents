@@ -9,15 +9,16 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Loader2, 
-  Mail, 
-  Lock, 
-  ArrowLeft, 
+import {
+  Loader2,
+  Mail,
+  Lock,
+  ArrowLeft,
   Calendar,
   Phone,
   MessageSquare
 } from 'lucide-react';
+import { signInWithGoogle } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth-context';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
