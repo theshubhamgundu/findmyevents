@@ -205,8 +205,12 @@ export default function Signup() {
   };
 
   const handleOnboardingComplete = () => {
+    console.log('Onboarding completed, navigating to dashboard...');
     setShowOnboarding(false);
-    navigate("/dashboard");
+    // Use setTimeout to ensure state is updated before navigation
+    setTimeout(() => {
+      navigate("/dashboard", { replace: true });
+    }, 100);
   };
 
   if (showOnboarding && newUser?.role === "student") {

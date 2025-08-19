@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Events from "./pages/Events";
 import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
 import CreateEvent from "./pages/CreateEvent";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/events" element={<Events />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/create-event" element={<CreateEvent />} />
             <Route path="/become-organizer" element={<BecomeOrganizer />} />
             <Route path="/manage-event/:eventId" element={<ManageEvent />} />
