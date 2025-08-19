@@ -316,7 +316,7 @@ export default function Dashboard() {
                   </Card>
                   <Card>
                     <CardContent className="p-4 text-center">
-                      <Ticket className="w-8 h-8 text-fme-orange mx-auto mb-2" />
+                      <TicketIcon className="w-8 h-8 text-fme-orange mx-auto mb-2" />
                       <p className="text-2xl font-bold text-gray-900">{tickets.length}</p>
                       <p className="text-sm text-gray-600">My Tickets</p>
                     </CardContent>
@@ -349,7 +349,7 @@ export default function Dashboard() {
                       Explore
                     </TabsTrigger>
                     <TabsTrigger value="tickets">
-                      <Ticket className="w-4 h-4 mr-2" />
+                      <TicketIcon className="w-4 h-4 mr-2" />
                       My Events
                     </TabsTrigger>
                     <TabsTrigger value="profile">
@@ -455,7 +455,7 @@ export default function Dashboard() {
                   <TabsContent value="tickets" className="space-y-6">
                     {upcomingEvents.length === 0 ? (
                       <div className="text-center py-12">
-                        <Ticket className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                        <TicketIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                         <h3 className="text-xl font-semibold text-gray-900 mb-2">No Events Yet</h3>
                         <p className="text-gray-600 mb-6">
                           Register for events to see your tickets here
