@@ -138,9 +138,23 @@ export default function Profile() {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
 
   useEffect(() => {
+    console.log('Profile data:', profile);
+    console.log('User data:', user);
+    console.log('User metadata:', user?.user_metadata);
+
     if (profile || user) {
+      // Try multiple sources for the full name
+      const fullName = profile?.full_name ||
+                      user?.user_metadata?.full_name ||
+                      user?.user_metadata?.name ||
+                      user?.identities?.[0]?.identity_data?.full_name ||
+                      user?.identities?.[0]?.identity_data?.name ||
+                      "";
+
+      console.log('Setting full_name to:', fullName);
+
       // Populate form with existing profile data
-      setProfileValue("full_name", profile?.full_name || user?.user_metadata?.full_name || "");
+      setProfileValue("full_name", fullName);
       setProfileValue("email", profile?.email || user?.email || "");
       setProfileValue("phone", profile?.phone || "");
       setProfileValue("bio", profile?.bio || "");
