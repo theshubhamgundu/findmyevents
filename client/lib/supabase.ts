@@ -189,7 +189,10 @@ export const signOut = async () => {
 
 // Event management
 export const getEvents = async (filters?: any) => {
-  if (!supabase) return [];
+  if (!supabase) {
+    console.log('Demo mode: Returning demo events');
+    return DEMO_EVENTS;
+  }
   
   let query = supabase
     .from('events')
