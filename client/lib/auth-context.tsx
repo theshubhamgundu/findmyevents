@@ -96,7 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Create profile
       const { error: profileError } = await supabase
         .from('profiles')
-        .insert([{
+        .upsert({
           id: data.user.id,
           email: data.user.email!,
           full_name: profileData.full_name!,
@@ -106,7 +106,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             whatsapp: false,
             telegram: false
           }
-        }]);
+        }, {
+          onConflict: 'id'
+        });
 
       if (profileError) throw profileError;
     }
