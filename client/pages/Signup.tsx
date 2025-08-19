@@ -24,6 +24,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import OnboardingWizard from '@/components/OnboardingWizard';
 import type { UserRole } from '@shared/types';
+import { signInWithGoogle } from '@/lib/supabase';
 
 const emailSignupSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
