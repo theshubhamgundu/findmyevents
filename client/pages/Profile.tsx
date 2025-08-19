@@ -110,6 +110,7 @@ export default function Profile() {
     register: registerProfile,
     handleSubmit: handleProfileSubmit,
     setValue: setProfileValue,
+    reset: resetProfileForm,
     watch: watchProfile,
     formState: { errors: profileErrors },
   } = useForm<ProfileForm>({
