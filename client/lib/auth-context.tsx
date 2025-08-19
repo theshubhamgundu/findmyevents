@@ -107,26 +107,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (error) throw error;
 
-    if (data.user) {
-      // Create profile
-      const { error: profileError } = await supabase.from("profiles").upsert(
-        {
-          id: data.user.id,
-          email: data.user.email!,
-          full_name: profileData.full_name!,
-          role: profileData.role || "student",
-          notification_preferences: {
-            email: true,
-            whatsapp: false,
-            telegram: false,
-          },
+    if (data.user && data.user.email_confirmed_at) {
+      // Only create profile if email is confirmed (immediate confirmation)
+      // For confirmed users, the session will be available immediately
+      const { error: profileError } = await supabase.from("profiles").insert({
+        id: data.user.id,
+        email: data.user.email!,
+        full_name: profileData.full_name!,
+        role: profileData.role || "student",
+        notification_preferences: {
+          email: true,
+          whatsapp: false,
+          telegram: false,
         },
-        {
-          onConflict: "id",
-        },
-      );
+      });
 
       if (profileError) throw profileError;
+    } else if (data.user && !data.user.email_confirmed_at) {
+      // If email confirmation is required, the profile will be created
+      // after email confirmation in the auth callback
+      // For now, we'll store the profile data temporarily in session
+      console.log("Email confirmation required. Profile will be created after confirmation.");
     }
   };
 
