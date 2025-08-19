@@ -27,28 +27,23 @@ export default function AuthCallback() {
             .single();
 
           if (profileError && profileError.code === "PGRST116") {
-            // Profile doesn't exist, create it
+            // Profile doesn't exist, create it using INSERT
             const { error: createError } = await supabase
               .from("profiles")
-              .upsert(
-                {
-                  id: data.session.user.id,
-                  email: data.session.user.email!,
-                  full_name:
-                    data.session.user.user_metadata?.full_name ||
-                    data.session.user.user_metadata?.name ||
-                    "Google User",
-                  role: "student", // Default role for Google sign-ups
-                  notification_preferences: {
-                    email: true,
-                    whatsapp: false,
-                    telegram: false,
-                  },
+              .insert({
+                id: data.session.user.id,
+                email: data.session.user.email!,
+                full_name:
+                  data.session.user.user_metadata?.full_name ||
+                  data.session.user.user_metadata?.name ||
+                  "Google User",
+                role: "student", // Default role for Google sign-ups
+                notification_preferences: {
+                  email: true,
+                  whatsapp: false,
+                  telegram: false,
                 },
-                {
-                  onConflict: "id",
-                },
-              );
+              });
 
             if (createError) {
               console.error("Error creating profile:", createError);
