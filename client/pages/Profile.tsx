@@ -390,8 +390,6 @@ export default function Profile() {
                           id="full_name"
                           placeholder="Your full name"
                           {...registerProfile("full_name")}
-                          className="bg-gray-50"
-                          disabled
                         />
                         {profileErrors.full_name && (
                           <p className="text-sm text-red-600">{profileErrors.full_name.message}</p>
