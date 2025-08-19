@@ -39,7 +39,7 @@ interface OnboardingWizardProps {
 const eventTypes = [
   { id: 'hackathon', label: 'Hackathons', icon: '🖥️', description: 'Coding competitions & innovation challenges' },
   { id: 'workshop', label: 'Workshops', icon: '🛠️', description: 'Hands-on learning sessions' },
-  { id: 'seminar', label: 'Seminars', icon: '🎤', description: 'Educational talks & presentations' },
+  { id: 'seminar', label: 'Seminars', icon: '���', description: 'Educational talks & presentations' },
   { id: 'ideathon', label: 'Ideathons', icon: '💡', description: 'Idea generation & pitching events' },
   { id: 'all', label: 'All Events', icon: '✅', description: 'Show me everything!' },
 ];
@@ -131,6 +131,10 @@ export default function OnboardingWizard({ user, onComplete }: OnboardingWizardP
       });
 
       // In real implementation, update user profile in Supabase
+
+      // Mark onboarding as completed before calling onComplete
+      localStorage.setItem('onboarding_completed', 'true');
+
       onComplete();
     } catch (error) {
       console.error('Error saving onboarding preferences:', error);
@@ -391,9 +395,6 @@ export default function OnboardingWizard({ user, onComplete }: OnboardingWizardP
                   </div>
                 </div>
 
-                <div className="text-center text-sm text-gray-500">
-                  <p>💡 <strong>Tip:</strong> These links are only visible to logged-in users</p>
-                </div>
               </div>
             )}
 
