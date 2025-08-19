@@ -109,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (data.user) {
       // Wait a bit for the session to be established
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Get the current session to ensure we're authenticated
       const { data: sessionData } = await supabase.auth.getSession();
@@ -134,7 +134,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } else {
         // No session available yet - email confirmation might be required
-        console.log("Email confirmation may be required. Profile will be created after confirmation.");
+        console.log(
+          "Email confirmation may be required. Profile will be created after confirmation.",
+        );
       }
     }
   };
