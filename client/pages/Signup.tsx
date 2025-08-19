@@ -182,11 +182,14 @@ export default function Signup() {
     try {
       setIsLoading(true);
       setError('');
-      
-      // In real implementation, this would use Google OAuth
-      console.log('Google Sign-in initiated');
-      setError('Google Sign-in integration requires additional setup');
-      
+
+      if (!isConfigured) {
+        setError('Authentication is not available. Please configure Supabase connection.');
+        return;
+      }
+
+      await signInWithGoogle();
+
     } catch (err: any) {
       setError(err.message || 'Google Sign-in failed');
     } finally {
