@@ -155,21 +155,6 @@ export default function Login() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      setIsLoading(true);
-      setError("");
-
-      // In real implementation, this would use Google OAuth
-      console.log("Google Sign-in initiated");
-      setError("Google Sign-in integration requires additional setup");
-    } catch (err: any) {
-      setError(err.message || "Google Sign-in failed");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
