@@ -78,9 +78,35 @@ if (isSupabaseConfigured) {
 
 export { supabase };
 
+// Demo/Mock data for when Supabase is not configured
+const DEMO_EVENTS = [
+  {
+    id: 'demo-1',
+    title: 'HackFest 2024',
+    description: 'A 36-hour hackathon focusing on AI and Machine Learning solutions.',
+    event_type: 'hackathon',
+    start_date: '2024-03-15T09:00:00Z',
+    end_date: '2024-03-17T18:00:00Z',
+    city: 'New Delhi',
+    venue_name: 'IIT Delhi',
+    is_online: false,
+    max_attendees: 500,
+    organizer: {
+      organization_name: 'IIT Delhi Tech Club',
+      contact_email: 'contact@iitd.ac.in'
+    },
+    ticket_types: [
+      { id: 'demo-ticket-1', name: 'General', price: 500, currency: 'INR' }
+    ]
+  }
+];
+
 // Auth helpers
 export const getCurrentUser = async () => {
-  if (!supabase) return null;
+  if (!supabase) {
+    console.log('Demo mode: No user authentication available');
+    return null;
+  }
   
   try {
     const { data: { user }, error } = await supabase.auth.getUser();
