@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Calendar,
   QrCode,
@@ -31,23 +31,23 @@ import {
   Loader2,
   Heart,
   Share,
-  ExternalLink
-} from 'lucide-react';
-import { useAuth } from '@/lib/auth-context';
-import { 
-  getUserTickets, 
-  getOrganizerByUserId, 
+  ExternalLink,
+} from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import {
+  getUserTickets,
+  getOrganizerByUserId,
   getOrganizerEvents,
   getUserNotifications,
   markNotificationAsRead,
   updateEventAnalytics,
-  getEvents
-} from '@/lib/supabase';
-import { generateTicketQR, downloadQRCode } from '@/lib/qr-utils';
-import { formatCurrency } from '@/lib/payment-utils';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import type { Ticket, Event, Notification, Organizer } from '@shared/types';
+  getEvents,
+} from "@/lib/supabase";
+import { generateTicketQR, downloadQRCode } from "@/lib/qr-utils";
+import { formatCurrency } from "@/lib/payment-utils";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import type { Ticket, Event, Notification, Organizer } from "@shared/types";
 
 export default function Dashboard() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -60,8 +60,8 @@ export default function Dashboard() {
   const [organizer, setOrganizer] = useState<Organizer | null>(null);
   const [loading, setLoading] = useState(true);
   const [generatingQR, setGeneratingQR] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeView, setActiveView] = useState('home');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeView, setActiveView] = useState("home");
   const { user, profile, isConfigured } = useAuth();
   const navigate = useNavigate();
 
@@ -79,35 +79,47 @@ export default function Dashboard() {
 
     try {
       setLoading(true);
-      
+
       // Load user tickets
       const userTickets = await getUserTickets(user.id);
       setTickets(userTickets);
 
       // Load all events for categorization
       const allEvents = await getEvents();
-      
+
       // For students, categorize events
-      if (profile?.role === 'student') {
+      if (profile?.role === "student") {
         // Recommended events based on user interests
-        const recommended = allEvents.filter(event => {
-          if (!profile?.interests || profile.interests.length === 0) return true;
-          return profile.interests.some(interest => 
-            event.event_type === interest || event.tags?.some(tag => 
-              profile.interests.includes(tag.toLowerCase())
-            )
-          );
-        }).slice(0, 6);
+        const recommended = allEvents
+          .filter((event) => {
+            if (!profile?.interests || profile.interests.length === 0)
+              return true;
+            return profile.interests.some(
+              (interest) =>
+                event.event_type === interest ||
+                event.tags?.some((tag) =>
+                  profile.interests.includes(tag.toLowerCase()),
+                ),
+            );
+          })
+          .slice(0, 6);
 
         // Trending events (mock - in real app would be based on registrations)
         const trending = allEvents
-          .sort((a, b) => (b.current_participants || 0) - (a.current_participants || 0))
+          .sort(
+            (a, b) =>
+              (b.current_participants || 0) - (a.current_participants || 0),
+          )
           .slice(0, 6);
 
         // Nearby events (mock - in real app would use user location)
-        const nearby = allEvents.filter(event => 
-          profile?.city ? event.city.toLowerCase().includes(profile.city.toLowerCase()) : false
-        ).slice(0, 6);
+        const nearby = allEvents
+          .filter((event) =>
+            profile?.city
+              ? event.city.toLowerCase().includes(profile.city.toLowerCase())
+              : false,
+          )
+          .slice(0, 6);
 
         // Mock saved events
         const saved = allEvents.slice(0, 3);
@@ -119,10 +131,10 @@ export default function Dashboard() {
       }
 
       // Load organizer data if user is organizer
-      if (profile?.role === 'organizer') {
+      if (profile?.role === "organizer") {
         const organizerData = await getOrganizerByUserId(user.id);
         setOrganizer(organizerData);
-        
+
         if (organizerData) {
           const organizerEvents = await getOrganizerEvents(organizerData.id);
           setEvents(organizerEvents);
@@ -133,7 +145,7 @@ export default function Dashboard() {
       const userNotifications = await getUserNotifications(user.id);
       setNotifications(userNotifications);
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      console.error("Error loading dashboard data:", error);
     } finally {
       setLoading(false);
     }
@@ -145,7 +157,7 @@ export default function Dashboard() {
       const qrCode = await generateTicketQR(ticket);
       downloadQRCode(qrCode, `ticket-${ticket.ticket_id}.png`);
     } catch (error) {
-      console.error('Error generating QR code:', error);
+      console.error("Error generating QR code:", error);
     } finally {
       setGeneratingQR(null);
     }
@@ -154,17 +166,19 @@ export default function Dashboard() {
   const handleMarkNotificationRead = async (notificationId: string) => {
     try {
       await markNotificationAsRead(notificationId);
-      setNotifications(prev => 
-        prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === notificationId ? { ...n, is_read: true } : n,
+        ),
       );
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      console.error("Error marking notification as read:", error);
     }
   };
 
   const handleSaveEvent = (eventId: string) => {
     // Mock save functionality
-    console.log('Saving event:', eventId);
+    console.log("Saving event:", eventId);
   };
 
   const handleShareEvent = (event: Event) => {
@@ -173,26 +187,28 @@ export default function Dashboard() {
       navigator.share({
         title: event.title,
         text: event.description,
-        url: window.location.origin + `/events/${event.id}`
+        url: window.location.origin + `/events/${event.id}`,
       });
     } else {
       // Fallback to copy link
-      navigator.clipboard.writeText(window.location.origin + `/events/${event.id}`);
+      navigator.clipboard.writeText(
+        window.location.origin + `/events/${event.id}`,
+      );
     }
   };
 
   const getUpcomingEvents = () => {
     return tickets
-      .filter(ticket => {
+      .filter((ticket) => {
         if (!ticket.event) return false;
         const eventDate = new Date(ticket.event.start_date);
-        return eventDate > new Date() && ticket.status === 'active';
+        return eventDate > new Date() && ticket.status === "active";
       })
       .slice(0, 5);
   };
 
   const getUnreadNotifications = () => {
-    return notifications.filter(n => !n.is_read);
+    return notifications.filter((n) => !n.is_read);
   };
 
   if (!isConfigured) {
@@ -207,8 +223,8 @@ export default function Dashboard() {
               <p className="text-gray-600 mb-4">
                 Dashboard functionality requires Supabase configuration.
               </p>
-              <Button 
-                onClick={() => navigate('/events')}
+              <Button
+                onClick={() => navigate("/events")}
                 className="bg-fme-blue hover:bg-fme-blue/90"
               >
                 Browse Events
@@ -233,8 +249,8 @@ export default function Dashboard() {
               <p className="text-gray-600 mb-4">
                 Please log in to access your dashboard.
               </p>
-              <Button 
-                onClick={() => navigate('/login')}
+              <Button
+                onClick={() => navigate("/login")}
                 className="bg-fme-blue hover:bg-fme-blue/90"
               >
                 Go to Login
@@ -251,11 +267,11 @@ export default function Dashboard() {
   const unreadNotifications = getUnreadNotifications();
 
   // Student Dashboard Layout
-  if (profile?.role === 'student') {
+  if (profile?.role === "student") {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
         <Header />
-        
+
         <main className="flex-1">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             {/* Header with Search */}
@@ -263,15 +279,23 @@ export default function Dashboard() {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h1 className="text-3xl font-bold text-gray-900">
-                    Hi, {profile?.full_name?.split(' ')[0]}! 👋
+                    Hi, {profile?.full_name?.split(" ")[0]}! 👋
                   </h1>
-                  <p className="text-gray-600">Discover amazing tech events near you</p>
+                  <p className="text-gray-600">
+                    Discover amazing tech events near you
+                  </p>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <Button variant="outline" onClick={() => setActiveView('notifications')}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setActiveView("notifications")}
+                  >
                     <Bell className="w-4 h-4 mr-2" />
                     {unreadNotifications.length > 0 && (
-                      <Badge variant="destructive" className="ml-1 px-1 min-w-[1.2rem] h-5">
+                      <Badge
+                        variant="destructive"
+                        className="ml-1 px-1 min-w-[1.2rem] h-5"
+                      >
                         {unreadNotifications.length}
                       </Badge>
                     )}
@@ -289,8 +313,8 @@ export default function Dashboard() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 pr-12 py-3"
                 />
-                <Button 
-                  size="sm" 
+                <Button
+                  size="sm"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2"
                   onClick={() => navigate(`/events?q=${searchQuery}`)}
                 >
@@ -310,28 +334,36 @@ export default function Dashboard() {
                   <Card>
                     <CardContent className="p-4 text-center">
                       <Calendar className="w-8 h-8 text-fme-blue mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-gray-900">{upcomingEvents.length}</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {upcomingEvents.length}
+                      </p>
                       <p className="text-sm text-gray-600">Upcoming</p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardContent className="p-4 text-center">
                       <TicketIcon className="w-8 h-8 text-fme-orange mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-gray-900">{tickets.length}</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {tickets.length}
+                      </p>
                       <p className="text-sm text-gray-600">My Tickets</p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardContent className="p-4 text-center">
                       <Bookmark className="w-8 h-8 text-green-500 mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-gray-900">{savedEvents.length}</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {savedEvents.length}
+                      </p>
                       <p className="text-sm text-gray-600">Saved</p>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardContent className="p-4 text-center">
                       <Bell className="w-8 h-8 text-red-500 mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-gray-900">{unreadNotifications.length}</p>
+                      <p className="text-2xl font-bold text-gray-900">
+                        {unreadNotifications.length}
+                      </p>
                       <p className="text-sm text-gray-600">Alerts</p>
                     </CardContent>
                   </Card>
@@ -367,15 +399,19 @@ export default function Dashboard() {
                           <Target className="w-5 h-5 mr-2 text-fme-blue" />
                           Recommended for You
                         </h2>
-                        <Button variant="outline" size="sm" onClick={() => setActiveView('explore')}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setActiveView("explore")}
+                        >
                           View All
                         </Button>
                       </div>
                       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {recommendedEvents.map(event => (
-                          <EventCard 
-                            key={event.id} 
-                            event={event} 
+                        {recommendedEvents.map((event) => (
+                          <EventCard
+                            key={event.id}
+                            event={event}
                             onSave={handleSaveEvent}
                             onShare={handleShareEvent}
                           />
@@ -390,15 +426,19 @@ export default function Dashboard() {
                           <Flame className="w-5 h-5 mr-2 text-fme-orange" />
                           Trending Events
                         </h2>
-                        <Button variant="outline" size="sm" onClick={() => setActiveView('explore')}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setActiveView("explore")}
+                        >
                           View All
                         </Button>
                       </div>
                       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {trendingEvents.map(event => (
-                          <EventCard 
-                            key={event.id} 
-                            event={event} 
+                        {trendingEvents.map((event) => (
+                          <EventCard
+                            key={event.id}
+                            event={event}
                             onSave={handleSaveEvent}
                             onShare={handleShareEvent}
                             showTrending
@@ -415,15 +455,19 @@ export default function Dashboard() {
                             <Navigation2 className="w-5 h-5 mr-2 text-green-500" />
                             Nearby Events
                           </h2>
-                          <Button variant="outline" size="sm" onClick={() => setActiveView('explore')}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setActiveView("explore")}
+                          >
                             View All
                           </Button>
                         </div>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {nearbyEvents.map(event => (
-                            <EventCard 
-                              key={event.id} 
-                              event={event} 
+                          {nearbyEvents.map((event) => (
+                            <EventCard
+                              key={event.id}
+                              event={event}
                               onSave={handleSaveEvent}
                               onShare={handleShareEvent}
                               showDistance
@@ -438,12 +482,14 @@ export default function Dashboard() {
                   <TabsContent value="explore">
                     <div className="text-center py-12">
                       <Search className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">Explore All Events</h3>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        Explore All Events
+                      </h3>
                       <p className="text-gray-600 mb-6">
                         Discover events by category, location, or search
                       </p>
-                      <Button 
-                        onClick={() => navigate('/events')}
+                      <Button
+                        onClick={() => navigate("/events")}
                         className="bg-fme-blue hover:bg-fme-blue/90"
                       >
                         Browse All Events
@@ -456,12 +502,14 @@ export default function Dashboard() {
                     {upcomingEvents.length === 0 ? (
                       <div className="text-center py-12">
                         <TicketIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">No Events Yet</h3>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                          No Events Yet
+                        </h3>
                         <p className="text-gray-600 mb-6">
                           Register for events to see your tickets here
                         </p>
-                        <Button 
-                          onClick={() => navigate('/events')}
+                        <Button
+                          onClick={() => navigate("/events")}
                           className="bg-fme-blue hover:bg-fme-blue/90"
                         >
                           Find Events
@@ -469,8 +517,10 @@ export default function Dashboard() {
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        <h2 className="text-xl font-semibold">My Registered Events</h2>
-                        {upcomingEvents.map(ticket => (
+                        <h2 className="text-xl font-semibold">
+                          My Registered Events
+                        </h2>
+                        {upcomingEvents.map((ticket) => (
                           <Card key={ticket.id}>
                             <CardContent className="p-6">
                               <div className="flex items-center justify-between">
@@ -479,11 +529,15 @@ export default function Dashboard() {
                                     <Calendar className="w-6 h-6 text-fme-blue" />
                                   </div>
                                   <div>
-                                    <h4 className="font-semibold text-gray-900">{ticket.event?.title}</h4>
+                                    <h4 className="font-semibold text-gray-900">
+                                      {ticket.event?.title}
+                                    </h4>
                                     <div className="flex items-center text-sm text-gray-600 space-x-4">
                                       <span className="flex items-center">
                                         <Clock className="w-4 h-4 mr-1" />
-                                        {new Date(ticket.event?.start_date!).toLocaleDateString()}
+                                        {new Date(
+                                          ticket.event?.start_date!,
+                                        ).toLocaleDateString()}
                                       </span>
                                       <span className="flex items-center">
                                         <MapPin className="w-4 h-4 mr-1" />
@@ -492,14 +546,16 @@ export default function Dashboard() {
                                     </div>
                                   </div>
                                 </div>
-                                <Button 
-                                  size="sm" 
+                                <Button
+                                  size="sm"
                                   onClick={() => handleGenerateQR(ticket)}
                                   disabled={generatingQR === ticket.id}
                                   className="bg-fme-blue hover:bg-fme-blue/90"
                                 >
                                   <QrCode className="w-4 h-4 mr-2" />
-                                  {generatingQR === ticket.id ? 'Generating...' : 'Get QR'}
+                                  {generatingQR === ticket.id
+                                    ? "Generating..."
+                                    : "Get QR"}
                                 </Button>
                               </div>
                             </CardContent>
@@ -513,12 +569,14 @@ export default function Dashboard() {
                   <TabsContent value="profile">
                     <div className="text-center py-12">
                       <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">Profile Settings</h3>
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        Profile Settings
+                      </h3>
                       <p className="text-gray-600 mb-6">
                         Manage your preferences and account settings
                       </p>
-                      <Button 
-                        onClick={() => navigate('/profile')}
+                      <Button
+                        onClick={() => navigate("/profile")}
                         className="bg-fme-blue hover:bg-fme-blue/90"
                       >
                         Edit Profile
@@ -530,7 +588,7 @@ export default function Dashboard() {
             )}
           </div>
         </main>
-        
+
         <Footer />
       </div>
     );
@@ -550,17 +608,18 @@ export default function Dashboard() {
               Manage your events and track registrations
             </p>
           </div>
-          
+
           <div className="text-center py-12">
             <Building className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
               Complete organizer dashboard functionality
             </h3>
             <p className="text-gray-600 mb-6">
-              Advanced organizer features will be implemented based on the organizer flow specifications.
+              Advanced organizer features will be implemented based on the
+              organizer flow specifications.
             </p>
-            <Button 
-              onClick={() => navigate('/create-event')}
+            <Button
+              onClick={() => navigate("/create-event")}
               className="bg-fme-orange hover:bg-fme-orange/90"
             >
               Create Event
@@ -574,13 +633,13 @@ export default function Dashboard() {
 }
 
 // Event Card Component
-function EventCard({ 
-  event, 
-  onSave, 
-  onShare, 
-  showTrending = false, 
-  showDistance = false 
-}: { 
+function EventCard({
+  event,
+  onSave,
+  onShare,
+  showTrending = false,
+  showDistance = false,
+}: {
   event: Event;
   onSave: (id: string) => void;
   onShare: (event: Event) => void;
@@ -589,9 +648,10 @@ function EventCard({
 }) {
   const navigate = useNavigate();
   const eventDate = new Date(event.start_date);
-  const cheapestTicket = event.ticket_types?.reduce((min, ticket) => 
-    ticket.price < min.price ? ticket : min
-  ) || event.ticket_types?.[0];
+  const cheapestTicket =
+    event.ticket_types?.reduce((min, ticket) =>
+      ticket.price < min.price ? ticket : min,
+    ) || event.ticket_types?.[0];
 
   return (
     <Card className="hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer group">
@@ -612,8 +672,10 @@ function EventCard({
           </div>
         </div>
 
-        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{event.title}</h3>
-        
+        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+          {event.title}
+        </h3>
+
         <div className="space-y-1 mb-3 text-sm text-gray-600">
           <div className="flex items-center">
             <Calendar className="w-3 h-3 mr-2" />
@@ -631,10 +693,10 @@ function EventCard({
 
         <div className="flex items-center justify-between">
           <div className="text-sm font-semibold text-fme-orange">
-            {cheapestTicket?.price === 0 ? 'Free' : `₹${cheapestTicket?.price}`}
+            {cheapestTicket?.price === 0 ? "Free" : `₹${cheapestTicket?.price}`}
           </div>
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             className="bg-fme-blue hover:bg-fme-blue/90 opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={() => navigate(`/events/${event.id}`)}
           >
