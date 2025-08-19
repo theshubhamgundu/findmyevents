@@ -2,21 +2,10 @@
 
 export type UserRole = "student" | "organizer" | "admin";
 export type VerificationStatus = "pending" | "approved" | "rejected";
-export type EventStatus =
-  | "draft"
-  | "pending"
-  | "approved"
-  | "published"
-  | "cancelled";
-export type EventType =
-  | "hackathon"
-  | "workshop"
-  | "seminar"
-  | "fest"
-  | "ideathon"
-  | "other";
-export type TicketStatus = "active" | "used" | "cancelled" | "refunded";
-export type PaymentStatus = "pending" | "completed" | "failed" | "refunded";
+export type EventStatus = "draft" | "pending" | "approved" | "published" | "cancelled";
+export type EventType = "hackathon" | "workshop" | "seminar" | "fest" | "ideathon" | "other";
+export type TicketStatus = "active" | "used" | "cancelled";
+export type RegistrationStatus = "pending" | "confirmed" | "cancelled";
 
 // User Profile
 export interface Profile {
@@ -63,11 +52,27 @@ export interface Organizer {
     linkedin?: string;
     twitter?: string;
   };
+  upi_id: string;
+  upi_name: string;
+  upi_qr_code?: string;
   verification_status: VerificationStatus;
   verification_documents: string[];
   verified_at?: string;
   verified_by?: string;
   rejection_reason?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Volunteer
+export interface Volunteer {
+  id: string;
+  username: string;
+  password_hash: string;
+  full_name: string;
+  organizer_id: string;
+  event_id?: string;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -92,6 +97,7 @@ export interface Event {
   is_team_event: boolean;
   max_team_size?: number;
   event_status: EventStatus;
+  requires_tickets: boolean; // New field for ticket requirement
   is_featured: boolean;
   tags: string[];
   requirements?: string;
@@ -101,15 +107,31 @@ export interface Event {
     phone?: string;
     website?: string;
   };
+  custom_form_fields?: FormField[]; // Custom registration fields
   created_at: string;
   updated_at: string;
   // Populated fields
   organizer?: Organizer;
-  ticket_types?: TicketType[];
+  pass_types?: PassType[];
 }
 
-// Ticket Type
-export interface TicketType {
+// Custom form field definition
+export interface FormField {
+  id: string;
+  label: string;
+  type: "text" | "email" | "number" | "select" | "textarea" | "file";
+  required: boolean;
+  options?: string[]; // For select fields
+  placeholder?: string;
+  validation?: {
+    min?: number;
+    max?: number;
+    pattern?: string;
+  };
+}
+
+// Pass/Ticket Type
+export interface PassType {
   id: string;
   event_id: string;
   name: string;
@@ -123,14 +145,16 @@ export interface TicketType {
   created_at: string;
 }
 
-// Ticket/Registration
-export interface Ticket {
+// Registration
+export interface Registration {
   id: string;
-  ticket_id: string; // Human readable ID
   event_id: string;
-  ticket_type_id: string;
+  pass_type_id: string;
   user_id: string;
-  status: TicketStatus;
+  utr_id: string;
+  payment_screenshot_url: string;
+  amount: number;
+  form_data: Record<string, any>; // Dynamic form data
   team_name?: string;
   team_members?: {
     name: string;
@@ -138,32 +162,33 @@ export interface Ticket {
     college?: string;
     year?: number;
   }[];
-  qr_code?: string;
-  payment_id?: string;
-  checked_in_at?: string;
-  checked_in_by?: string;
+  status: RegistrationStatus;
+  payment_verified: boolean;
   created_at: string;
   updated_at: string;
   // Populated fields
   event?: Event;
-  ticket_type?: TicketType;
+  pass_type?: PassType;
   user?: Profile;
-  payment?: Payment;
 }
 
-// Payment
-export interface Payment {
+// Ticket/Pass
+export interface Ticket {
   id: string;
-  ticket_id: string;
-  razorpay_payment_id?: string;
-  razorpay_order_id?: string;
-  amount: number;
-  currency: string;
-  status: PaymentStatus;
-  organizer_upi_id?: string;
-  payment_method?: string;
-  paid_at?: string;
+  ticket_token: string; // Unique token for QR code
+  registration_id: string;
+  event_id: string;
+  user_id: string;
+  status: TicketStatus;
+  scanned_at?: string;
+  scanned_by_user_id?: string;
+  scanned_by_volunteer_id?: string;
   created_at: string;
+  updated_at: string;
+  // Populated fields
+  registration?: Registration;
+  event?: Event;
+  user?: Profile;
 }
 
 // Notification
@@ -205,6 +230,7 @@ export interface CreateEventRequest {
   max_participants?: number;
   is_team_event: boolean;
   max_team_size?: number;
+  requires_tickets: boolean;
   tags: string[];
   requirements?: string;
   prizes?: string;
@@ -213,34 +239,8 @@ export interface CreateEventRequest {
     phone?: string;
     website?: string;
   };
-  ticket_types: Omit<TicketType, "id" | "event_id" | "sold" | "created_at">[];
-  organizer_upi_id?: string;
-}
-
-export interface RegisterEventRequest {
-  event_id: string;
-  ticket_type_id: string;
-  team_name?: string;
-  team_members?: {
-    name: string;
-    email: string;
-    college?: string;
-    year?: number;
-  }[];
-}
-
-export interface UpdateProfileRequest {
-  full_name?: string;
-  college?: string;
-  year?: number;
-  phone?: string;
-  city?: string;
-  interests?: string[];
-  notification_preferences?: {
-    email: boolean;
-    whatsapp: boolean;
-    telegram: boolean;
-  };
+  custom_form_fields?: FormField[];
+  pass_types: Omit<PassType, "id" | "event_id" | "sold" | "created_at">[];
 }
 
 export interface CreateOrganizerRequest {
@@ -253,7 +253,37 @@ export interface CreateOrganizerRequest {
     linkedin?: string;
     twitter?: string;
   };
+  upi_id: string;
+  upi_name: string;
+  upi_qr_code?: string;
   verification_documents: string[];
+}
+
+export interface RegisterEventRequest {
+  event_id: string;
+  pass_type_id: string;
+  utr_id: string;
+  payment_screenshot: File;
+  form_data: Record<string, any>;
+  team_name?: string;
+  team_members?: {
+    name: string;
+    email: string;
+    college?: string;
+    year?: number;
+  }[];
+}
+
+export interface VolunteerLoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface CreateVolunteerRequest {
+  username: string;
+  password: string;
+  full_name: string;
+  event_id?: string;
 }
 
 // Search and Filter types
@@ -299,8 +329,9 @@ export interface ApiResponse<T = any> {
 
 // Dashboard data types
 export interface StudentDashboard {
-  upcoming_events: (Event & { ticket?: Ticket })[];
-  past_events: (Event & { ticket?: Ticket })[];
+  upcoming_events: (Event & { registration?: Registration; ticket?: Ticket })[];
+  past_events: (Event & { registration?: Registration; ticket?: Ticket })[];
+  registrations: Registration[];
   tickets: Ticket[];
   notifications: Notification[];
   stats: {
@@ -312,7 +343,7 @@ export interface StudentDashboard {
 
 export interface OrganizerDashboard {
   events: Event[];
-  registrations: Ticket[];
+  registrations: Registration[];
   analytics: EventAnalytics[];
   stats: {
     total_events: number;
@@ -324,11 +355,20 @@ export interface OrganizerDashboard {
 
 // QR Code data
 export interface QRCodeData {
-  ticket_id: string;
+  ticket_token: string;
   event_id: string;
   user_id: string;
   type: "individual" | "team";
   issued_at: string;
+}
+
+// Volunteer session data
+export interface VolunteerSession {
+  volunteer_id: string;
+  volunteer_name: string;
+  event_id: string;
+  event_title: string;
+  organizer_id: string;
 }
 
 // Form validation types
@@ -361,4 +401,24 @@ export interface TicketCardProps {
   ticket: Ticket;
   showQRCode?: boolean;
   showCheckIn?: boolean;
+}
+
+// UPI Payment flow types
+export interface UPIPaymentInfo {
+  upi_id: string;
+  upi_name: string;
+  upi_qr_code?: string;
+  amount: number;
+  event_title: string;
+  pass_type_name: string;
+}
+
+// Ticket verification result
+export interface TicketVerification {
+  valid: boolean;
+  ticket?: Ticket;
+  event?: Event;
+  user?: Profile;
+  message: string;
+  already_scanned?: boolean;
 }
