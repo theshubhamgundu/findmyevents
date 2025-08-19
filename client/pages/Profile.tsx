@@ -146,10 +146,10 @@ export default function Profile() {
       setProfileValue("bio", profile?.bio || "");
       setProfileValue("city", profile?.city || "");
       
-      if (profile.skills) {
+      if (profile?.skills) {
         setSelectedSkills(profile.skills);
       }
-      if (profile.interests) {
+      if (profile?.interests) {
         setSelectedInterests(profile.interests);
       }
 
