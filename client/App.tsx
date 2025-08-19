@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import BecomeOrganizer from "./pages/BecomeOrganizer";
 import ManageEvent from "./pages/ManageEvent";
 import AdminPanel from "./pages/AdminPanel";
+import AuthCallback from "./pages/AuthCallback";
 import { AuthProvider } from "./lib/auth-context";
 import { User, Shield, Bell, HelpCircle } from "lucide-react";
 
@@ -42,6 +43,7 @@ const App = () => (
           {/* Auth Pages */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
 
           {/* Event Types */}
           <Route path="/hackathons" element={
