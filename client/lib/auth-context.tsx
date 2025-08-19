@@ -108,9 +108,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
 
     if (data.user) {
-      // Create profile
-      const { error: profileError } = await supabase.from("profiles").upsert(
-        {
+      // Wait a bit for the session to be established
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Get the current session to ensure we're authenticated
+      const { data: sessionData } = await supabase.auth.getSession();
+
+      if (sessionData.session) {
+        // Session is available, create the profile
+        const { error: profileError } = await supabase.from("profiles").insert({
           id: data.user.id,
           email: data.user.email!,
           full_name: profileData.full_name!,
@@ -120,13 +126,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             whatsapp: false,
             telegram: false,
           },
-        },
-        {
-          onConflict: "id",
-        },
-      );
+        });
 
-      if (profileError) throw profileError;
+        if (profileError) {
+          console.error("Profile creation error:", profileError);
+          throw profileError;
+        }
+      } else {
+        // No session available yet - email confirmation might be required
+        console.log(
+          "Email confirmation may be required. Profile will be created after confirmation.",
+        );
+      }
     }
   };
 
