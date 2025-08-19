@@ -5,6 +5,7 @@
 The 404 error you're seeing is caused by incorrect build configuration. Here's what we've fixed:
 
 ### ✅ Fixed Issues
+
 1. **Build Command**: Changed from `npm run build:client` to `npm run build`
 2. **Output Directory**: Changed from `dist` to `dist/spa` to match Vite config
 3. **SPA Routing**: Configured rewrites to serve `index.html` for all routes
@@ -14,6 +15,7 @@ The 404 error you're seeing is caused by incorrect build configuration. Here's w
 ### 1. Verify Vercel Configuration
 
 Your `vercel.json` is now correctly configured:
+
 ```json
 {
   "buildCommand": "npm run build",
@@ -67,42 +69,52 @@ If deployment still fails:
 ## Common 404 Causes & Solutions
 
 ### Issue: Routes not working (e.g., `/events`, `/login`)
+
 **Solution**: The `rewrites` configuration in `vercel.json` fixes this by serving `index.html` for all routes.
 
 ### Issue: Build fails with environment variable errors
+
 **Solution**: Set proper environment variables in Vercel dashboard (not in `.env` file for production).
 
 ### Issue: Assets not loading
+
 **Solution**: Check that `outputDirectory` matches your build output (`dist/spa`).
 
 ## Testing Deployment
 
 ### 1. Local Build Test
+
 ```bash
 npm run build
 ```
+
 Should create files in `dist/spa/` without errors.
 
 ### 2. Preview Mode
+
 After deployment, test these URLs:
+
 - `/` - Home page
 - `/events` - Should not show 404
 - `/login` - Should not show 404
 - `/dashboard` - Should not show 404
 
 ### 3. Check Network Tab
+
 - Verify assets are loading from Vercel CDN
 - Check for any 404s on CSS/JS files
 
 ## Environment Variables for Production
 
 ### Required Variables
+
 ```bash
 VITE_SUPABASE_URL=https://[project-id].supabase.co
 VITE_SUPABASE_ANON_KEY=eyJ[long-jwt-token]
 ```
 
 ### Optional Variables
+
 ```bash
 VITE_RAZORPAY_KEY_ID=rzp_[key]
 VITE_WHATSAPP_API_URL=https://api.whatsapp.com
@@ -120,6 +132,7 @@ VITE_TELEGRAM_BOT_TOKEN=bot[token]
    - Check that assets are properly referenced
 
 3. **Test Build Locally**
+
    ```bash
    npm run build
    npx serve dist/spa
