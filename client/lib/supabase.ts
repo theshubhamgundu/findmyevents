@@ -3,24 +3,80 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Validate URL format
+const isValidUrl = (url: string): boolean => {
+  try {
+    new URL(url);
+    return url.includes('.supabase.co') || url.includes('localhost');
+  } catch {
+    return false;
+  }
+};
+
+// Validate API key format (should be a JWT-like string)
+const isValidApiKey = (key: string): boolean => {
+  return typeof key === 'string' &&
+         key.length > 100 &&
+         key.startsWith('eyJ') &&
+         key.split('.').length === 3;
+};
+
+// Placeholder values to check against
+const placeholderValues = [
+  'your_supabase_project_url',
+  'your_supabase_anon_key_here',
+  'your_supabase_anon_key',
+  'https://demo.supabase.co',
+  'demo_key_placeholder',
+  'https://your-project-id.supabase.co',
+  'REPLACE_WITH_YOUR_ACTUAL_SUPABASE_URL',
+  'REPLACE_WITH_YOUR_ACTUAL_SUPABASE_ANON_KEY'
+];
+
 // Check if Supabase is properly configured
 export const isSupabaseConfigured = !!(
-  supabaseUrl && 
-  supabaseAnonKey && 
-  supabaseUrl !== 'your_supabase_project_url' &&
-  supabaseAnonKey !== 'your_supabase_anon_key_here' &&
-  supabaseUrl !== 'https://demo.supabase.co' &&
-  supabaseAnonKey !== 'demo_key_placeholder'
+  supabaseUrl &&
+  supabaseAnonKey &&
+  !placeholderValues.includes(supabaseUrl) &&
+  !placeholderValues.includes(supabaseAnonKey) &&
+  isValidUrl(supabaseUrl) &&
+  isValidApiKey(supabaseAnonKey)
 );
 
+// Log configuration status for debugging
+console.log('Supabase Configuration Check:', {
+  hasUrl: !!supabaseUrl,
+  hasKey: !!supabaseAnonKey,
+  urlValid: supabaseUrl ? isValidUrl(supabaseUrl) : false,
+  keyValid: supabaseAnonKey ? isValidApiKey(supabaseAnonKey) : false,
+  isConfigured: isSupabaseConfigured,
+  urlPreview: supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : 'not set'
+});
+
 if (!isSupabaseConfigured) {
-  console.warn('Supabase is not properly configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.');
+  console.warn('Supabase is not properly configured. Please set valid VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.');
 }
 
-// Create Supabase client
-export const supabase = isSupabaseConfigured 
-  ? createClient(supabaseUrl!, supabaseAnonKey!)
-  : null;
+// Create Supabase client with error handling
+let supabase: ReturnType<typeof createClient> | null = null;
+
+if (isSupabaseConfigured) {
+  try {
+    supabase = createClient(supabaseUrl!, supabaseAnonKey!, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true
+      }
+    });
+    console.log('Supabase client created successfully');
+  } catch (error) {
+    console.error('Failed to create Supabase client:', error);
+    supabase = null;
+  }
+}
+
+export { supabase };
 
 // Auth helpers
 export const getCurrentUser = async () => {
