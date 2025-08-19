@@ -63,7 +63,6 @@ if (isSupabaseConfigured) {
         detectSessionInUrl: true,
       },
     });
-    console.log("Supabase client created successfully");
   } catch (error) {
     console.error("Failed to create Supabase client:", error);
     supabase = null;
