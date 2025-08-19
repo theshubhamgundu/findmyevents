@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import HealthCheck from "@/components/HealthCheck";
+import SupabaseSetup from "@/components/SupabaseSetup";
+import { isSupabaseConfigured } from "@/lib/supabase";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Calendar,
