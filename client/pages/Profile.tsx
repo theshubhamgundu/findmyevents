@@ -49,8 +49,6 @@ const profileSchema = z.object({
   phone: z.string().optional(),
   bio: z.string().max(500, "Bio must be less than 500 characters").optional(),
   city: z.string().optional(),
-  college: z.string().optional(),
-  graduation_year: z.string().optional(),
   skills: z.array(z.string()).optional(),
   interests: z.array(z.string()).optional(),
 });
@@ -140,15 +138,13 @@ export default function Profile() {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
 
   useEffect(() => {
-    if (profile) {
+    if (profile || user) {
       // Populate form with existing profile data
-      setProfileValue("full_name", profile.full_name || "");
-      setProfileValue("email", profile.email || user?.email || "");
-      setProfileValue("phone", profile.phone || "");
-      setProfileValue("bio", profile.bio || "");
-      setProfileValue("city", profile.city || "");
-      setProfileValue("college", profile.college || "");
-      setProfileValue("graduation_year", profile.graduation_year?.toString() || "");
+      setProfileValue("full_name", profile?.full_name || user?.user_metadata?.full_name || "");
+      setProfileValue("email", profile?.email || user?.email || "");
+      setProfileValue("phone", profile?.phone || "");
+      setProfileValue("bio", profile?.bio || "");
+      setProfileValue("city", profile?.city || "");
       
       if (profile.skills) {
         setSelectedSkills(profile.skills);
@@ -176,7 +172,6 @@ export default function Profile() {
         ...data,
         skills: selectedSkills,
         interests: selectedInterests,
-        graduation_year: data.graduation_year ? parseInt(data.graduation_year) : undefined,
       };
 
       await updateProfile(updatedProfile);
@@ -381,6 +376,8 @@ export default function Profile() {
                           id="full_name"
                           placeholder="Your full name"
                           {...registerProfile("full_name")}
+                          className="bg-gray-50"
+                          disabled
                         />
                         {profileErrors.full_name && (
                           <p className="text-sm text-red-600">{profileErrors.full_name.message}</p>
@@ -395,6 +392,7 @@ export default function Profile() {
                           placeholder="your@email.com"
                           {...registerProfile("email")}
                           disabled
+                          className="bg-gray-50"
                         />
                         {profileErrors.email && (
                           <p className="text-sm text-red-600">{profileErrors.email.message}</p>
@@ -426,26 +424,6 @@ export default function Profile() {
                         </Select>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="college">College</Label>
-                        <Input
-                          id="college"
-                          placeholder="Your college name"
-                          {...registerProfile("college")}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="graduation_year">Graduation Year</Label>
-                        <Input
-                          id="graduation_year"
-                          type="number"
-                          placeholder="2024"
-                          min="2020"
-                          max="2030"
-                          {...registerProfile("graduation_year")}
-                        />
-                      </div>
                     </div>
 
                     <div className="space-y-2">
