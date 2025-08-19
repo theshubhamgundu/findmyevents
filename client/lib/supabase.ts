@@ -46,20 +46,9 @@ export const isSupabaseConfigured = !!(
   isValidApiKey(supabaseAnonKey)
 );
 
-// Log configuration status for debugging
-console.log("Supabase Configuration Check:", {
-  hasUrl: !!supabaseUrl,
-  hasKey: !!supabaseAnonKey,
-  urlValid: supabaseUrl ? isValidUrl(supabaseUrl) : false,
-  keyValid: supabaseAnonKey ? isValidApiKey(supabaseAnonKey) : false,
-  isConfigured: isSupabaseConfigured,
-  urlPreview: supabaseUrl ? supabaseUrl.substring(0, 30) + "..." : "not set",
-});
-
+// Simple production-ready logging
 if (!isSupabaseConfigured) {
-  console.warn(
-    "Supabase is not properly configured. Please set valid VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.",
-  );
+  console.warn("Supabase configuration incomplete");
 }
 
 // Create Supabase client with error handling
