@@ -154,13 +154,15 @@ export default function Profile() {
 
       console.log('Setting full_name to:', fullName);
 
-      // Populate form with existing profile data
-      setProfileValue("full_name", fullName);
-      setProfileValue("email", profile?.email || user?.email || "");
-      setProfileValue("phone", profile?.phone || "");
-      setProfileValue("bio", profile?.bio || "");
-      setProfileValue("city", profile?.city || "");
-      
+      // Reset form with all available data
+      resetProfileForm({
+        full_name: fullName,
+        email: profile?.email || user?.email || "",
+        phone: profile?.phone || "",
+        bio: profile?.bio || "",
+        city: profile?.city || "",
+      });
+
       if (profile?.skills) {
         setSelectedSkills(profile.skills);
       }
@@ -175,7 +177,7 @@ export default function Profile() {
       setNotificationValue("event_reminders", true);
       setNotificationValue("marketing_emails", false);
     }
-  }, [profile, user, setProfileValue, setNotificationValue]);
+  }, [profile, user, resetProfileForm, setNotificationValue]);
 
   const onProfileSubmit = async (data: ProfileForm) => {
     try {
