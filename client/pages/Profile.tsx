@@ -517,8 +517,6 @@ export default function Profile() {
                       phone: watchProfile("phone"),
                       bio: watchProfile("bio"),
                       city: watchProfile("city"),
-                      college: watchProfile("college"),
-                      graduation_year: watchProfile("graduation_year"),
                       skills: selectedSkills,
                       interests: selectedInterests,
                     })}
