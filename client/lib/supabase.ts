@@ -298,7 +298,7 @@ export const getUserTickets = async (userId: string) => {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Error fetching tickets:", error);
+    console.error("Error fetching tickets:", error.message || error);
     return [];
   }
   return data || [];
@@ -505,7 +505,7 @@ export const getUserNotifications = async (userId: string) => {
     .limit(20);
 
   if (error) {
-    console.error("Error fetching notifications:", error);
+    console.error("Error fetching notifications:", error.message || error);
     return [];
   }
   return data || [];
