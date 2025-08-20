@@ -17,6 +17,7 @@ import {
   QrCode,
 } from "lucide-react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { useVolunteerAuth } from "@/hooks/use-volunteer-auth";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -33,6 +34,7 @@ export default function VolunteerLogin() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const eventId = searchParams.get("eventId");
+  const { loginVolunteer } = useVolunteerAuth();
 
   const {
     register,
@@ -75,17 +77,16 @@ export default function VolunteerLogin() {
         return;
       }
 
-      // Store volunteer session in localStorage (simplified)
-      localStorage.setItem(
-        "volunteer_session",
-        JSON.stringify({
-          id: volunteer.id,
-          username: volunteer.username,
-          event_id: volunteer.event_id,
-          event: volunteer.events,
-          logged_in_at: new Date().toISOString(),
-        }),
-      );
+      // Store volunteer session using auth provider
+      const volunteerSession = {
+        id: volunteer.id,
+        username: volunteer.username,
+        event_id: volunteer.event_id,
+        event: volunteer.events,
+        logged_in_at: new Date().toISOString(),
+      };
+
+      loginVolunteer(volunteerSession);
 
       // Navigate to volunteer dashboard or specific event if eventId is provided
       const redirectTo = eventId
