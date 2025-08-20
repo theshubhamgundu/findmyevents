@@ -76,6 +76,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
+    // Demo admin login bypass
+    if (email === 'shubsss' && password === 'shubsss@1911') {
+      // Create demo admin user and profile
+      const demoUser = {
+        id: 'admin-demo-user',
+        email: 'admin@findmyevent.com',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        aud: 'authenticated',
+        role: 'authenticated'
+      } as User;
+
+      const demoProfile: Profile = {
+        id: 'admin-demo-user',
+        email: 'admin@findmyevent.com',
+        full_name: 'Admin User',
+        role: 'admin',
+        notification_preferences: {
+          email: true,
+          whatsapp: false,
+          telegram: false
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      setUser(demoUser);
+      setProfile(demoProfile);
+      setLoading(false);
+      return;
+    }
+
     if (!isSupabaseConfigured) {
       throw new Error(
         "Authentication is not available. Please configure Supabase connection.",
