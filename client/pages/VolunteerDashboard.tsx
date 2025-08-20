@@ -20,14 +20,7 @@ import {
 } from "lucide-react";
 import QRScanner from "@/components/QRScanner";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
-
-interface VolunteerSession {
-  id: string;
-  username: string;
-  event_id: string;
-  event: any;
-  logged_in_at: string;
-}
+import { useVolunteerAuth } from "@/hooks/use-volunteer-auth";
 
 interface ScanResult {
   success: boolean;
@@ -39,8 +32,9 @@ interface ScanResult {
 export default function VolunteerDashboard() {
   const { eventId } = useParams();
   const navigate = useNavigate();
-  
-  const [volunteerSession, setVolunteerSession] = useState<VolunteerSession | null>(null);
+  const { volunteerSession, logoutVolunteer } = useVolunteerAuth();
+
+  const [isLoading, setIsLoading] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [scanResults, setScanResults] = useState<ScanResult[]>([]);
   const [eventStats, setEventStats] = useState({
@@ -50,28 +44,11 @@ export default function VolunteerDashboard() {
   });
 
   useEffect(() => {
-    // Check volunteer session
-    const sessionData = localStorage.getItem("volunteer_session");
-    if (!sessionData) {
-      navigate("/volunteer/login");
-      return;
+    // Load event statistics if volunteer session exists
+    if (volunteerSession && isSupabaseConfigured) {
+      loadEventStats(volunteerSession.event_id);
     }
-
-    const session = JSON.parse(sessionData);
-    
-    // Verify event access
-    if (eventId && session.event_id !== eventId) {
-      navigate("/volunteer/login");
-      return;
-    }
-
-    setVolunteerSession(session);
-    
-    // Load event statistics
-    if (isSupabaseConfigured) {
-      loadEventStats(session.event_id);
-    }
-  }, [eventId, navigate]);
+  }, [volunteerSession]);
 
   const loadEventStats = async (eventId: string) => {
     try {
@@ -200,8 +177,7 @@ export default function VolunteerDashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("volunteer_session");
-    navigate("/volunteer/login");
+    logoutVolunteer();
   };
 
   if (!volunteerSession) {
