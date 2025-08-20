@@ -276,13 +276,13 @@ export default function Login() {
                     )}
 
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email">Email or Username</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                         <Input
                           id="email"
-                          type="email"
-                          placeholder="your@email.com"
+                          type="text"
+                          placeholder="your@email.com or username"
                           className="pl-10"
                           {...registerEmail("email")}
                         />
