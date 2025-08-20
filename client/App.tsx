@@ -22,6 +22,8 @@ import AuthCallback from "./pages/AuthCallback";
 import VolunteerLogin from "./pages/VolunteerLogin";
 import VolunteerDashboard from "./pages/VolunteerDashboard";
 import { AuthProvider } from "./lib/auth-context";
+import { VolunteerAuthProvider } from "./hooks/use-volunteer-auth";
+import VolunteerRouteGuard from "./components/VolunteerRouteGuard";
 import { User, Shield, Bell, HelpCircle } from "lucide-react";
 
 const queryClient = new QueryClient();
@@ -33,6 +35,7 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <BrowserRouter>
+          <VolunteerAuthProvider>
           <Routes>
             {/* Main Pages */}
             <Route path="/" element={<Index />} />
@@ -51,7 +54,14 @@ const App = () => (
 
             {/* Volunteer Pages */}
             <Route path="/volunteer/login" element={<VolunteerLogin />} />
-            <Route path="/volunteer/scan/:eventId" element={<VolunteerDashboard />} />
+            <Route
+              path="/volunteer/scan/:eventId"
+              element={
+                <VolunteerRouteGuard>
+                  <VolunteerDashboard />
+                </VolunteerRouteGuard>
+              }
+            />
 
             {/* Event Types */}
             <Route
@@ -145,6 +155,7 @@ const App = () => (
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </VolunteerAuthProvider>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>
