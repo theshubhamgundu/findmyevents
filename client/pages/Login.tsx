@@ -460,6 +460,19 @@ export default function Login() {
             </p>
           </div>
 
+          {/* Volunteer Login */}
+          <div className="mt-4 text-center">
+            <p className="text-gray-600">
+              Are you a volunteer?{" "}
+              <Link
+                to="/volunteer/login"
+                className="text-green-600 hover:underline font-medium"
+              >
+                Volunteer Login
+              </Link>
+            </p>
+          </div>
+
           {/* Back to home */}
           <div className="mt-4 text-center">
             <Link
