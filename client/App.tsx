@@ -19,6 +19,8 @@ import BecomeOrganizer from "./pages/BecomeOrganizer";
 import ManageEvent from "./pages/ManageEvent";
 import AdminPanel from "./pages/AdminPanel";
 import AuthCallback from "./pages/AuthCallback";
+import VolunteerLogin from "./pages/VolunteerLogin";
+import VolunteerDashboard from "./pages/VolunteerDashboard";
 import { AuthProvider } from "./lib/auth-context";
 import { User, Shield, Bell, HelpCircle } from "lucide-react";
 
@@ -46,6 +48,10 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+
+            {/* Volunteer Pages */}
+            <Route path="/volunteer/login" element={<VolunteerLogin />} />
+            <Route path="/volunteer/scan/:eventId" element={<VolunteerDashboard />} />
 
             {/* Event Types */}
             <Route
