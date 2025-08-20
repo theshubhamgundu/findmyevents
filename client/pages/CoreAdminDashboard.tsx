@@ -51,6 +51,8 @@ import { useAuth } from '@/lib/auth-context';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import SecurityDashboard from '@/components/admin/SecurityDashboard';
+import SupportTools from '@/components/admin/SupportTools';
 
 // Types for the comprehensive admin dashboard
 interface DashboardStats {
@@ -1127,38 +1129,12 @@ export default function CoreAdminDashboard() {
 
             {/* Security Tab */}
             <TabsContent value="security" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Access & Security</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    <Shield className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Security Dashboard</h3>
-                    <p className="text-gray-600">
-                      Activity logs, role management, and security monitoring will be displayed here.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <SecurityDashboard />
             </TabsContent>
 
             {/* Support Tab */}
             <TabsContent value="support" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Notifications & Support Tools</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8">
-                    <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Support Dashboard</h3>
-                    <p className="text-gray-600">
-                      Platform announcements, organizer messaging, and dispute resolution tools will be available here.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+              <SupportTools />
             </TabsContent>
           </Tabs>
         </div>
