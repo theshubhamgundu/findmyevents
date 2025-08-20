@@ -282,7 +282,10 @@ export const getEventById = async (id: string) => {
 };
 
 export const getUserTickets = async (userId: string) => {
-  if (!supabase) return [];
+  if (!supabase) {
+    console.warn("Supabase not configured - returning empty tickets array");
+    return [];
+  }
 
   const { data, error } = await supabase
     .from("tickets")
@@ -495,7 +498,10 @@ export const createNotification = async (notificationData: any) => {
 };
 
 export const getUserNotifications = async (userId: string) => {
-  if (!supabase) return [];
+  if (!supabase) {
+    console.warn("Supabase not configured - returning empty notifications array");
+    return [];
+  }
 
   const { data, error } = await supabase
     .from("notifications")
