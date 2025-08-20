@@ -18,8 +18,13 @@ import NotFound from "./pages/NotFound";
 import BecomeOrganizer from "./pages/BecomeOrganizer";
 import ManageEvent from "./pages/ManageEvent";
 import AdminPanel from "./pages/AdminPanel";
+import CoreAdminDashboard from "./pages/CoreAdminDashboard";
 import AuthCallback from "./pages/AuthCallback";
+import VolunteerLogin from "./pages/VolunteerLogin";
+import VolunteerDashboard from "./pages/VolunteerDashboard";
 import { AuthProvider } from "./lib/auth-context";
+import { VolunteerAuthProvider } from "./hooks/use-volunteer-auth";
+import VolunteerRouteGuard from "./components/VolunteerRouteGuard";
 import { User, Shield, Bell, HelpCircle } from "lucide-react";
 
 const queryClient = new QueryClient();
@@ -31,6 +36,7 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <BrowserRouter>
+          <VolunteerAuthProvider>
           <Routes>
             {/* Main Pages */}
             <Route path="/" element={<Index />} />
@@ -41,11 +47,24 @@ const App = () => (
             <Route path="/become-organizer" element={<BecomeOrganizer />} />
             <Route path="/manage-event/:eventId" element={<ManageEvent />} />
             <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/admin/dashboard" element={<CoreAdminDashboard />} />
+            <Route path="/CoreAdminDashboard" element={<CoreAdminDashboard />} />
 
             {/* Auth Pages */}
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+
+            {/* Volunteer Pages */}
+            <Route path="/volunteer/login" element={<VolunteerLogin />} />
+            <Route
+              path="/volunteer/scan/:eventId"
+              element={
+                <VolunteerRouteGuard>
+                  <VolunteerDashboard />
+                </VolunteerRouteGuard>
+              }
+            />
 
             {/* Event Types */}
             <Route
@@ -139,6 +158,7 @@ const App = () => (
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </VolunteerAuthProvider>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>

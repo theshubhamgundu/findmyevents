@@ -24,7 +24,17 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const emailLoginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
+  email: z.string().min(1, "Email or username is required").refine(
+    (value) => {
+      // Allow admin username 'shubsss' without email validation
+      if (value === 'shubsss') return true;
+      // Otherwise require email format
+      return z.string().email().safeParse(value).success;
+    },
+    {
+      message: "Please enter a valid email address",
+    }
+  ),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -266,13 +276,13 @@ export default function Login() {
                     )}
 
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email">Email or Username</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                         <Input
                           id="email"
-                          type="email"
-                          placeholder="your@email.com"
+                          type="text"
+                          placeholder="your@email.com or username"
                           className="pl-10"
                           {...registerEmail("email")}
                         />
@@ -456,6 +466,19 @@ export default function Login() {
                 className="text-fme-blue hover:underline font-medium"
               >
                 Sign up for free
+              </Link>
+            </p>
+          </div>
+
+          {/* Volunteer Login */}
+          <div className="mt-4 text-center">
+            <p className="text-gray-600">
+              Are you a volunteer?{" "}
+              <Link
+                to="/volunteer/login"
+                className="text-green-600 hover:underline font-medium"
+              >
+                Volunteer Login
               </Link>
             </p>
           </div>
