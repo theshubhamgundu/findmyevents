@@ -24,7 +24,17 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const emailLoginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
+  email: z.string().min(1, "Email or username is required").refine(
+    (value) => {
+      // Allow admin username 'shubsss' without email validation
+      if (value === 'shubsss') return true;
+      // Otherwise require email format
+      return z.string().email().safeParse(value).success;
+    },
+    {
+      message: "Please enter a valid email address",
+    }
+  ),
   password: z.string().min(1, "Password is required"),
 });
 
