@@ -283,7 +283,7 @@ export const getEventById = async (id: string) => {
 
 export const getUserTickets = async (userId: string) => {
   // Handle demo admin user
-  if (userId === '00000000-0000-4000-8000-000000000001') {
+  if (userId === "00000000-0000-4000-8000-000000000001") {
     console.log("Demo admin user - returning mock tickets");
     return [];
   }
@@ -505,24 +505,27 @@ export const createNotification = async (notificationData: any) => {
 
 export const getUserNotifications = async (userId: string) => {
   // Handle demo admin user
-  if (userId === '00000000-0000-4000-8000-000000000001') {
+  if (userId === "00000000-0000-4000-8000-000000000001") {
     console.log("Demo admin user - returning mock notifications");
     return [
       {
-        id: 'demo-notif-1',
+        id: "demo-notif-1",
         user_id: userId,
-        type: 'admin_welcome',
-        title: 'Welcome to Admin Dashboard',
-        message: 'You are now logged in as a demo admin user with full access to the Core Admin Dashboard.',
+        type: "admin_welcome",
+        title: "Welcome to Admin Dashboard",
+        message:
+          "You are now logged in as a demo admin user with full access to the Core Admin Dashboard.",
         data: {},
         is_read: false,
-        created_at: new Date().toISOString()
-      }
+        created_at: new Date().toISOString(),
+      },
     ];
   }
 
   if (!supabase) {
-    console.warn("Supabase not configured - returning empty notifications array");
+    console.warn(
+      "Supabase not configured - returning empty notifications array",
+    );
     return [];
   }
 

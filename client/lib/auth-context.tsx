@@ -77,30 +77,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     // Demo admin login bypass
-    if (email === 'shubsss' && password === 'shubsss@1911') {
+    if (email === "shubsss" && password === "shubsss@1911") {
       // Create demo admin user and profile with proper UUID
-      const demoUserId = '00000000-0000-4000-8000-000000000001'; // Valid UUID format
+      const demoUserId = "00000000-0000-4000-8000-000000000001"; // Valid UUID format
       const demoUser = {
         id: demoUserId,
-        email: 'admin@findmyevent.com',
+        email: "admin@findmyevent.com",
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        aud: 'authenticated',
-        role: 'authenticated'
+        aud: "authenticated",
+        role: "authenticated",
       } as User;
 
       const demoProfile: Profile = {
         id: demoUserId,
-        email: 'admin@findmyevent.com',
-        full_name: 'Admin User',
-        role: 'admin',
+        email: "admin@findmyevent.com",
+        full_name: "Admin User",
+        role: "admin",
         notification_preferences: {
           email: true,
           whatsapp: false,
-          telegram: false
+          telegram: false,
         },
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
 
       setUser(demoUser);
