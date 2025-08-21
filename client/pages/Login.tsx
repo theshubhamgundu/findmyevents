@@ -142,8 +142,12 @@ export default function Login() {
         return;
       }
 
-      // Mock successful login
-      navigate("/dashboard");
+      // Mock successful login - for demo, if phone is admin's phone, redirect to admin
+      if (phoneNumber === "+91-9876543210") { // Admin's demo phone number
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err: any) {
       setError(err.message || "OTP verification failed");
     } finally {
