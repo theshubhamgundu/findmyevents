@@ -66,7 +66,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user || !isConfigured) {
+    if (!user) {
       setLoading(false);
       return;
     }
@@ -84,7 +84,7 @@ export default function Dashboard() {
     }
 
     loadDashboardData();
-  }, [user, profile, isConfigured, navigate]);
+  }, [user, profile, navigate]);
 
   const loadDashboardData = async () => {
     if (!user) return;
