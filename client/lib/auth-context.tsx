@@ -241,7 +241,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    // Stop any active QR scanners and release camera before logout
+    try {
+      // Find any active QR scanner and stop it
+      const qrReaderElement = document.getElementById('qr-reader');
+      if (qrReaderElement) {
+        // Dispatch a custom event to notify QR scanner components to cleanup
+        const cleanupEvent = new CustomEvent('authLogout');
+        window.dispatchEvent(cleanupEvent);
+      }
+
+      // Stop any media streams that might be active
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const streams = await navigator.mediaDevices.enumerateDevices();
+        // This is a best effort to stop active streams
+        if (window.currentMediaStream) {
+          window.currentMediaStream.getTracks().forEach(track => track.stop());
+          window.currentMediaStream = null;
+        }
+      }
+    } catch (error) {
+      console.warn('Error during camera cleanup:', error);
+    }
+
+    // Clear user state for demo users (non-Supabase)
     if (!isSupabaseConfigured) {
+      setUser(null);
+      setProfile(null);
       return;
     }
 
