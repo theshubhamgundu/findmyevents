@@ -252,13 +252,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Stop any media streams that might be active
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        const streams = await navigator.mediaDevices.enumerateDevices();
-        // This is a best effort to stop active streams
-        if (window.currentMediaStream) {
-          window.currentMediaStream.getTracks().forEach(track => track.stop());
-          window.currentMediaStream = null;
-        }
+      if (window.currentMediaStream) {
+        window.currentMediaStream.getTracks().forEach(track => track.stop());
+        window.currentMediaStream = undefined;
+        console.log('Global media stream cleaned up during logout');
       }
     } catch (error) {
       console.warn('Error during camera cleanup:', error);
