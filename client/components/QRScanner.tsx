@@ -122,14 +122,20 @@ export default function QRScanner({
       // Request camera permissions explicitly for mobile
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         try {
-          await navigator.mediaDevices.getUserMedia({
+          const stream = await navigator.mediaDevices.getUserMedia({
             video: {
               facingMode: { ideal: "environment" }, // Use back camera on mobile
               width: { ideal: 1280 },
               height: { ideal: 720 },
             },
           });
+
+          // Store the stream globally for cleanup
+          (window as any).currentMediaStream = stream;
           console.log("Camera permission granted");
+
+          // Release the test stream as Html5QrcodeScanner will create its own
+          stream.getTracks().forEach(track => track.stop());
         } catch (permissionError) {
           console.warn("Camera permission denied:", permissionError);
           setScanResult({
