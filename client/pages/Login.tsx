@@ -277,7 +277,7 @@ export default function Login() {
                           <strong>Demo Mode:</strong> Use these credentials to test different user roles:<br/>
                           <strong>Admin:</strong> shubsss / shubsss@1911<br/>
                           <strong>Organizer:</strong> organizer / organizer123<br/>
-                          <strong>Student:</strong> Any other email/password
+                          <strong>Student:</strong> student / student123
                         </AlertDescription>
                       </Alert>
                     )}
