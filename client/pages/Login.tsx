@@ -281,8 +281,8 @@ export default function Login() {
                   >
                     <Alert>
                       <AlertDescription>
-                        <strong>Demo Mode Available:</strong> Use these credentials to
-                        test different user roles:
+                        <strong>Demo Mode Available:</strong> Use these
+                        credentials to test different user roles:
                         <br />
                         <strong>Admin:</strong> shubsss / shubsss@1911
                         <br />

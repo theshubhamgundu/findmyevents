@@ -76,11 +76,11 @@ export default function QRScanner({
   useEffect(() => {
     // Listen for auth logout event to cleanup camera
     const handleAuthLogout = () => {
-      console.log('Auth logout detected, cleaning up QR scanner...');
+      console.log("Auth logout detected, cleaning up QR scanner...");
       stopScanner();
     };
 
-    window.addEventListener('authLogout', handleAuthLogout);
+    window.addEventListener("authLogout", handleAuthLogout);
 
     return () => {
       // Cleanup scanner on unmount
@@ -90,7 +90,7 @@ export default function QRScanner({
       }
 
       // Remove event listener
-      window.removeEventListener('authLogout', handleAuthLogout);
+      window.removeEventListener("authLogout", handleAuthLogout);
     };
   }, []);
 
@@ -105,7 +105,7 @@ export default function QRScanner({
       setScanResult(null);
 
       // Wait for the DOM to update and render the qr-reader element
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Check if the qr-reader element exists
       const qrReaderElement = document.getElementById("qr-reader");
@@ -135,7 +135,7 @@ export default function QRScanner({
           console.log("Camera permission granted");
 
           // Release the test stream as Html5QrcodeScanner will create its own
-          stream.getTracks().forEach(track => track.stop());
+          stream.getTracks().forEach((track) => track.stop());
         } catch (permissionError) {
           console.warn("Camera permission denied:", permissionError);
           setScanResult({
@@ -152,7 +152,7 @@ export default function QRScanner({
         "qr-reader",
         {
           fps: 10,
-          qrbox: function(viewfinderWidth, viewfinderHeight) {
+          qrbox: function (viewfinderWidth, viewfinderHeight) {
             // Calculate the optimal size for the QR box
             const minEdgePercentage = 0.7; // 70% of the smaller edge
             const minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
@@ -232,30 +232,30 @@ export default function QRScanner({
       }
 
       // Additional cleanup: stop any active media streams
-      const qrReaderElement = document.getElementById('qr-reader');
+      const qrReaderElement = document.getElementById("qr-reader");
       if (qrReaderElement) {
         // Find and stop any video elements
-        const videos = qrReaderElement.getElementsByTagName('video');
+        const videos = qrReaderElement.getElementsByTagName("video");
         for (let i = 0; i < videos.length; i++) {
           const video = videos[i];
           if (video.srcObject) {
             const stream = video.srcObject as MediaStream;
-            stream.getTracks().forEach(track => {
+            stream.getTracks().forEach((track) => {
               track.stop();
-              console.log('Stopped camera track:', track.kind);
+              console.log("Stopped camera track:", track.kind);
             });
             video.srcObject = null;
           }
         }
 
         // Clear the container
-        qrReaderElement.innerHTML = '';
+        qrReaderElement.innerHTML = "";
       }
 
       setIsScanning(false);
-      console.log('QR scanner stopped and camera released');
+      console.log("QR scanner stopped and camera released");
     } catch (error) {
-      console.error('Error stopping QR scanner:', error);
+      console.error("Error stopping QR scanner:", error);
       setIsScanning(false);
     }
   };
@@ -496,10 +496,10 @@ export default function QRScanner({
               id="qr-reader"
               className="w-full"
               style={{
-                minHeight: '400px',
-                maxWidth: '100%',
-                aspectRatio: '1',
-                margin: '0 auto'
+                minHeight: "400px",
+                maxWidth: "100%",
+                aspectRatio: "1",
+                margin: "0 auto",
               }}
             ></div>
             {isProcessing && (

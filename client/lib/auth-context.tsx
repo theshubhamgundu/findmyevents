@@ -244,21 +244,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Stop any active QR scanners and release camera before logout
     try {
       // Find any active QR scanner and stop it
-      const qrReaderElement = document.getElementById('qr-reader');
+      const qrReaderElement = document.getElementById("qr-reader");
       if (qrReaderElement) {
         // Dispatch a custom event to notify QR scanner components to cleanup
-        const cleanupEvent = new CustomEvent('authLogout');
+        const cleanupEvent = new CustomEvent("authLogout");
         window.dispatchEvent(cleanupEvent);
       }
 
       // Stop any media streams that might be active
       if (window.currentMediaStream) {
-        window.currentMediaStream.getTracks().forEach(track => track.stop());
+        window.currentMediaStream.getTracks().forEach((track) => track.stop());
         window.currentMediaStream = undefined;
-        console.log('Global media stream cleaned up during logout');
+        console.log("Global media stream cleaned up during logout");
       }
     } catch (error) {
-      console.warn('Error during camera cleanup:', error);
+      console.warn("Error during camera cleanup:", error);
     }
 
     // Clear user state for demo users (non-Supabase)
