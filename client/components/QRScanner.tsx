@@ -36,8 +36,38 @@ export default function QRScanner({ eventId, onTicketScanned }: QRScannerProps) 
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [cameraSupported, setCameraSupported] = useState(true);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
   const { user } = useAuth();
+
+  // Check if camera is supported and HTTPS is being used
+  useEffect(() => {
+    const checkCameraSupport = () => {
+      // Check if we're on HTTPS (required for camera access on most mobile browsers)
+      if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+        setScanResult({
+          type: 'error',
+          message: 'Camera access requires HTTPS. Please access this page using a secure connection.'
+        });
+        setCameraSupported(false);
+        return;
+      }
+
+      // Check if getUserMedia is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setScanResult({
+          type: 'error',
+          message: 'Camera access is not supported in this browser.'
+        });
+        setCameraSupported(false);
+        return;
+      }
+
+      setCameraSupported(true);
+    };
+
+    checkCameraSupport();
+  }, []);
 
   useEffect(() => {
     return () => {
