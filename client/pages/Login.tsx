@@ -98,7 +98,13 @@ export default function Login() {
       }
 
       await signIn(data.email, data.password);
-      navigate("/dashboard");
+
+      // Check if this is the admin demo login
+      if (data.email === "shubsss" && data.password === "shubsss@1911") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err: any) {
       setError(err.message || "Invalid email or password");
     } finally {
