@@ -74,11 +74,23 @@ export default function QRScanner({
   }, []);
 
   useEffect(() => {
+    // Listen for auth logout event to cleanup camera
+    const handleAuthLogout = () => {
+      console.log('Auth logout detected, cleaning up QR scanner...');
+      stopScanner();
+    };
+
+    window.addEventListener('authLogout', handleAuthLogout);
+
     return () => {
       // Cleanup scanner on unmount
       if (scannerRef.current) {
         scannerRef.current.clear();
+        scannerRef.current = null;
       }
+
+      // Remove event listener
+      window.removeEventListener('authLogout', handleAuthLogout);
     };
   }, []);
 
