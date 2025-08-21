@@ -45,6 +45,14 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/events" element={<Events />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route
+              path="/organizer/dashboard"
+              element={
+                <OrganizerRouteGuard>
+                  <OrganizerDashboard />
+                </OrganizerRouteGuard>
+              }
+            />
             <Route path="/profile" element={<Profile />} />
             <Route
               path="/create-event"
