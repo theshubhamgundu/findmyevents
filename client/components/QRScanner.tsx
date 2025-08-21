@@ -493,17 +493,27 @@ export default function QRScanner({ eventId, onTicketScanned }: QRScannerProps) 
       )}
 
       {/* Instructions */}
-      {!isScanning && !scanResult && (
+      {!isScanning && !scanResult && cameraSupported && (
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             <strong>How to use:</strong>
             <ul className="list-disc list-inside mt-2 space-y-1">
               <li>Click "Start Scanning" to activate the camera</li>
+              <li>Allow camera permissions when prompted</li>
               <li>Point the camera at the QR code on attendee tickets</li>
               <li>The system will automatically validate and check in valid tickets</li>
               <li>Duplicate scans will be detected and flagged</li>
             </ul>
+            <div className="mt-3 p-2 bg-blue-50 rounded text-sm">
+              <strong>Mobile Tips:</strong>
+              <ul className="list-disc list-inside mt-1 space-y-1">
+                <li>Ensure you're using a secure connection (HTTPS)</li>
+                <li>Allow camera access when your browser asks</li>
+                <li>Use the back camera for better QR code scanning</li>
+                <li>If the camera doesn't start, try refreshing the page</li>
+              </ul>
+            </div>
           </AlertDescription>
         </Alert>
       )}
