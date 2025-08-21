@@ -432,7 +432,16 @@ export default function QRScanner({
       {isScanning && (
         <Card>
           <CardContent className="p-4">
-            <div id="qr-reader" className="w-full"></div>
+            <div
+              id="qr-reader"
+              className="w-full"
+              style={{
+                minHeight: '400px',
+                maxWidth: '100%',
+                aspectRatio: '1',
+                margin: '0 auto'
+              }}
+            ></div>
             {isProcessing && (
               <div className="text-center mt-4">
                 <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
