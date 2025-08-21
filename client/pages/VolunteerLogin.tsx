@@ -61,9 +61,11 @@ export default function VolunteerLogin() {
               id: "demo-event-1",
               title: "AI/ML Workshop 2024",
               venue: "Tech Hub Auditorium",
-              event_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-              city: "Mumbai"
-            }
+              event_date: new Date(
+                Date.now() + 7 * 24 * 60 * 60 * 1000,
+              ).toISOString(),
+              city: "Mumbai",
+            },
           },
           {
             id: "vol-demo-2",
@@ -74,16 +76,23 @@ export default function VolunteerLogin() {
               id: "demo-event-2",
               title: "React Bootcamp 2024",
               venue: "Innovation Center",
-              event_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-              city: "Delhi"
-            }
-          }
+              event_date: new Date(
+                Date.now() + 5 * 24 * 60 * 60 * 1000,
+              ).toISOString(),
+              city: "Delhi",
+            },
+          },
         ];
 
-        const volunteer = demoVolunteers.find(v => v.username === data.username && v.password_hash === data.password);
+        const volunteer = demoVolunteers.find(
+          (v) =>
+            v.username === data.username && v.password_hash === data.password,
+        );
 
         if (!volunteer) {
-          setError("Invalid username or password. Try: volunteer1/volunteer123 or scanner/scanner123");
+          setError(
+            "Invalid username or password. Try: volunteer1/volunteer123 or scanner/scanner123",
+          );
           return;
         }
 
@@ -187,8 +196,11 @@ export default function VolunteerLogin() {
                 {!isSupabaseConfigured && (
                   <Alert>
                     <AlertDescription>
-                      <strong>Demo Mode:</strong> Use these volunteer credentials:<br/>
-                      <strong>Username:</strong> volunteer1 or scanner<br/>
+                      <strong>Demo Mode:</strong> Use these volunteer
+                      credentials:
+                      <br />
+                      <strong>Username:</strong> volunteer1 or scanner
+                      <br />
                       <strong>Password:</strong> volunteer123 or scanner123
                     </AlertDescription>
                   </Alert>
@@ -257,9 +269,7 @@ export default function VolunteerLogin() {
                 </Button>
 
                 <div className="text-center text-sm text-gray-500">
-                  <p>
-                    Credentials provided by your event organizer
-                  </p>
+                  <p>Credentials provided by your event organizer</p>
                 </div>
               </form>
             </CardContent>

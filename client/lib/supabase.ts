@@ -303,15 +303,17 @@ export const getUserTickets = async (userId: string) => {
           id: "demo-event-1",
           title: "AI/ML Workshop 2024",
           venue: "Tech Hub Auditorium",
-          start_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          city: "Mumbai"
+          start_date: new Date(
+            Date.now() + 7 * 24 * 60 * 60 * 1000,
+          ).toISOString(),
+          city: "Mumbai",
         },
         ticket_type: {
           id: "demo-ticket-type-1",
           name: "Standard Pass",
-          price: 299
-        }
-      }
+          price: 299,
+        },
+      },
     ];
   }
 

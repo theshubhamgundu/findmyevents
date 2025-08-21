@@ -7,21 +7,25 @@ This guide covers all user flows and functionality testing for the FindMyEvent a
 The application runs in demo mode when Supabase is not configured. Use these credentials:
 
 ### Admin Access
+
 - **Username**: `shubsss`
 - **Password**: `shubsss@1911`
 - **Redirects to**: `/admin/dashboard`
 
 ### Organizer Access
+
 - **Username**: `organizer`
 - **Password**: `organizer123`
 - **Redirects to**: `/organizer/dashboard`
 
 ### Student Access
+
 - **Username**: `student`
 - **Password**: `student123`
 - **Redirects to**: `/dashboard` (student dashboard)
 
 ### Volunteer Access
+
 - **Username**: `volunteer1` or `scanner`
 - **Password**: `volunteer123` or `scanner123`
 - **Redirects to**: `/volunteer/scan/{eventId}`
@@ -31,12 +35,14 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 ### 1. Admin User Flow
 
 #### Login as Admin
+
 1. Go to `/login`
 2. Enter: `shubsss` / `shubsss@1911`
 3. ✅ Should redirect to `/admin/dashboard`
 4. ✅ Should see Core Admin Dashboard with comprehensive features
 
 #### Admin Dashboard Features
+
 - **Overview Tab**: Stats, metrics, quick actions
 - **Events Tab**: Event management, approval workflow
 - **Organizers Tab**: Organizer verification and management
@@ -47,6 +53,7 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 - **Support Tab**: Support tools and tickets
 
 #### Test Admin Route Protection
+
 1. Logout and login as student
 2. Try to access `/admin/dashboard` directly
 3. ✅ Should show "Access denied" message
@@ -55,18 +62,21 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 ### 2. Organizer User Flow
 
 #### Login as Organizer
+
 1. Go to `/login`
 2. Enter: `organizer` / `organizer123`
 3. ✅ Should redirect to `/organizer/dashboard`
 4. ✅ Should see Organizer Dashboard with event management features
 
 #### Organizer Dashboard Features
+
 - **Event Statistics**: Total events, active events, registrations
 - **Event Management**: View, edit, manage events
 - **Analytics**: Event performance metrics
 - **Quick Actions**: Create event, settings, analytics
 
 #### Test Organizer Route Protection
+
 1. Try to access `/create-event`
 2. ✅ Should be allowed (organizer has access)
 3. Try to access `/manage-event/{eventId}`
@@ -78,12 +88,14 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 ### 3. Student User Flow
 
 #### Login as Student
+
 1. Go to `/login`
 2. Enter: `student` / `student123`
 3. ✅ Should redirect to `/dashboard`
 4. ✅ Should see Student Dashboard with event discovery
 
 #### Student Dashboard Features
+
 - **Home Tab**: Recommended, trending, nearby events
 - **Explore Tab**: Event browsing and search
 - **My Events Tab**: Registered events and tickets
@@ -91,6 +103,7 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 - **Stats Cards**: Upcoming events, tickets, saved events, alerts
 
 #### Test Student Features
+
 1. **Event Discovery**: Browse recommended events
 2. **Event Search**: Search functionality
 3. **Ticket Management**: View registered events
@@ -100,12 +113,14 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 ### 4. Volunteer User Flow
 
 #### Login as Volunteer
+
 1. Go to `/volunteer/login`
 2. Enter: `volunteer1` / `volunteer123` OR `scanner` / `scanner123`
 3. ✅ Should redirect to `/volunteer/scan/{eventId}`
 4. ✅ Should see Volunteer Dashboard with QR scanning
 
 #### Volunteer Dashboard Features
+
 - **Event Information**: Assigned event details
 - **Statistics**: Total registered, checked in, pending
 - **QR Scanner**: Camera-based ticket scanning
@@ -113,6 +128,7 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 - **Help Section**: Usage instructions
 
 #### Test Volunteer Features
+
 1. **QR Scanner**: Start/stop scanner functionality
 2. **Scan Results**: Valid/invalid ticket handling
 3. **Statistics**: Real-time check-in counts
@@ -121,12 +137,14 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 ### 5. Authentication Flow Testing
 
 #### Email/Password Login
+
 1. Test all demo credentials
 2. ✅ Validation should work correctly
 3. ✅ Role-based redirects should work
 4. ✅ Invalid credentials should show error
 
 #### Phone/OTP Login (Demo)
+
 1. Switch to "Phone + OTP" tab
 2. Enter phone number: `+91-9876543210`
 3. ✅ Should send mock OTP
@@ -134,10 +152,12 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 5. ✅ Should login successfully
 
 #### Google OAuth (Demo Mode)
+
 1. Click "Continue with Google"
 2. ✅ Should show Supabase configuration message
 
 #### Route Protection Testing
+
 1. Try accessing protected routes without login
 2. ✅ Should redirect to login page
 3. Try accessing wrong role routes
@@ -146,6 +166,7 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 ### 6. Navigation and Routing
 
 #### Public Routes (No auth required)
+
 - `/` - Homepage ✅
 - `/events` - Event listing ✅
 - `/login` - Login page ✅
@@ -153,6 +174,7 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 - `/hackathons`, `/workshops`, etc. - Event categories ✅
 
 #### Protected Routes
+
 - `/dashboard` - Student dashboard (role-based) ✅
 - `/admin/dashboard` - Admin only ✅
 - `/organizer/dashboard` - Organizer only ✅
@@ -161,6 +183,7 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 - `/volunteer/scan/{id}` - Volunteer only ✅
 
 #### Route Guards Testing
+
 1. **AdminRouteGuard**: Protects admin routes ✅
 2. **OrganizerRouteGuard**: Protects organizer routes ✅
 3. **VolunteerRouteGuard**: Protects volunteer routes ✅
@@ -168,17 +191,20 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 ### 7. Component Testing
 
 #### Header Component
+
 - **Logo/Navigation**: Links to home ✅
 - **Authentication Status**: Shows login/logout ✅
 - **Role-based Menu**: Different options per role ✅
 - **Mobile Responsiveness**: Works on mobile ✅
 
 #### Footer Component
+
 - **Links**: All footer links functional ✅
 - **Copyright**: Proper attribution ✅
 - **Social Links**: Placeholder links ✅
 
 #### Event Cards
+
 - **Display**: Event information properly shown ✅
 - **Actions**: Save, share, view functionality ✅
 - **Registration**: Event registration flow ✅
@@ -186,16 +212,19 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 ### 8. Form Validation Testing
 
 #### Login Form
+
 - **Email/Username**: Accepts demo usernames ✅
 - **Password**: Required validation ✅
 - **Error Handling**: Shows appropriate errors ✅
 
 #### Signup Form
+
 - **Form Validation**: All fields validated ✅
 - **Password Strength**: Minimum requirements ✅
 - **Email Format**: Proper email validation ✅
 
 #### Event Creation Form
+
 - **Required Fields**: All mandatory fields validated ✅
 - **Date Validation**: Proper date range checks ✅
 - **File Upload**: Image upload functionality ✅
@@ -203,11 +232,13 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 ### 9. Error Handling
 
 #### Network Errors
+
 - **Offline**: Graceful degradation ✅
 - **API Errors**: Proper error messages ✅
 - **Timeout**: Loading states and fallbacks ✅
 
 #### User Errors
+
 - **Invalid Input**: Form validation messages ✅
 - **Access Denied**: Clear error messages ✅
 - **Not Found**: 404 page handling ✅
@@ -215,11 +246,13 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 ### 10. Performance Testing
 
 #### Page Load Times
+
 - **Initial Load**: Homepage loads quickly ✅
 - **Route Navigation**: Fast SPA navigation ✅
 - **Image Loading**: Lazy loading implemented ✅
 
 #### Bundle Size
+
 - **Code Splitting**: Routes are code-split ✅
 - **Tree Shaking**: Unused code eliminated ✅
 - **Compression**: Assets properly compressed ✅
@@ -227,6 +260,7 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 ## Demo Mode vs Production
 
 ### Demo Mode Features (No Supabase)
+
 - ✅ Role-based authentication with mock users
 - ✅ Mock data for all user types
 - ✅ All UI components functional
@@ -235,6 +269,7 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 - ✅ Error handling in place
 
 ### Production Mode Features (With Supabase)
+
 - 🔧 Real user authentication
 - 🔧 Database integration
 - 🔧 Real-time features
@@ -245,6 +280,7 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 ## Testing Checklist
 
 ### ✅ Authentication & Authorization
+
 - [x] Admin login and dashboard access
 - [x] Organizer login and dashboard access
 - [x] Student login and dashboard access
@@ -254,6 +290,7 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 - [x] Logout functionality
 
 ### ✅ User Interfaces
+
 - [x] Admin dashboard (comprehensive)
 - [x] Organizer dashboard (event management)
 - [x] Student dashboard (event discovery)
@@ -263,6 +300,7 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 - [x] Profile management
 
 ### ✅ Navigation & Routing
+
 - [x] SPA routing working
 - [x] Role-based redirects
 - [x] Route guards protecting paths
@@ -270,6 +308,7 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 - [x] Back button functionality
 
 ### ✅ Form Handling
+
 - [x] Login form validation
 - [x] Signup form validation
 - [x] Event creation forms
@@ -277,18 +316,21 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 - [x] Error message display
 
 ### ✅ Responsive Design
+
 - [x] Mobile-friendly layouts
 - [x] Tablet responsiveness
 - [x] Desktop optimization
 - [x] Touch-friendly interactions
 
 ### ✅ Error Handling
+
 - [x] Network error handling
 - [x] Form validation errors
 - [x] Access control errors
 - [x] 404 page handling
 
 ### 🔧 To Test with Supabase
+
 - [ ] Real user registration
 - [ ] Database CRUD operations
 - [ ] File uploads
@@ -318,6 +360,7 @@ The application runs in demo mode when Supabase is not configured. Use these cre
 ✅ **All core functionality is working correctly!**
 
 The application successfully demonstrates:
+
 - Complete role-based authentication system
 - Separate dashboards for all user types
 - Comprehensive admin panel

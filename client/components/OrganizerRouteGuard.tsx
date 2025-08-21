@@ -1,14 +1,16 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/lib/auth-context';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Building, Loader2 } from 'lucide-react';
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/lib/auth-context";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Building, Loader2 } from "lucide-react";
 
 interface OrganizerRouteGuardProps {
   children: React.ReactNode;
 }
 
-export default function OrganizerRouteGuard({ children }: OrganizerRouteGuardProps) {
+export default function OrganizerRouteGuard({
+  children,
+}: OrganizerRouteGuardProps) {
   const { user, profile, loading, isConfigured } = useAuth();
 
   // Show loading while auth is initializing
@@ -29,7 +31,7 @@ export default function OrganizerRouteGuard({ children }: OrganizerRouteGuardPro
   }
 
   // Check if user has organizer role (or admin role for access)
-  if (profile?.role !== 'organizer' && profile?.role !== 'admin') {
+  if (profile?.role !== "organizer" && profile?.role !== "admin") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md w-full mx-4">
@@ -40,7 +42,7 @@ export default function OrganizerRouteGuard({ children }: OrganizerRouteGuardPro
             </AlertDescription>
           </Alert>
           <div className="mt-4 text-center">
-            <button 
+            <button
               onClick={() => window.history.back()}
               className="text-blue-600 hover:underline"
             >

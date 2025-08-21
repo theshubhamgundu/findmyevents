@@ -53,7 +53,7 @@ export default function OrganizerDashboard() {
       maxParticipants: 200,
     },
     {
-      id: "2", 
+      id: "2",
       title: "React Advanced Bootcamp",
       date: "2024-02-25",
       registrations: 89,
@@ -99,7 +99,8 @@ export default function OrganizerDashboard() {
                   Organizer Dashboard
                 </h1>
                 <p className="text-gray-600">
-                  Welcome back, {profile?.full_name}! Manage your events and track performance.
+                  Welcome back, {profile?.full_name}! Manage your events and
+                  track performance.
                 </p>
               </div>
               <Button
@@ -118,8 +119,12 @@ export default function OrganizerDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Total Events</p>
-                    <p className="text-2xl font-bold text-gray-900">{organizerStats.totalEvents}</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Total Events
+                    </p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {organizerStats.totalEvents}
+                    </p>
                   </div>
                   <Calendar className="w-8 h-8 text-fme-blue" />
                 </div>
@@ -130,8 +135,12 @@ export default function OrganizerDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Active Events</p>
-                    <p className="text-2xl font-bold text-gray-900">{organizerStats.activeEvents}</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Active Events
+                    </p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {organizerStats.activeEvents}
+                    </p>
                   </div>
                   <TrendingUp className="w-8 h-8 text-green-500" />
                 </div>
@@ -142,8 +151,12 @@ export default function OrganizerDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Total Registrations</p>
-                    <p className="text-2xl font-bold text-gray-900">{organizerStats.totalRegistrations}</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Total Registrations
+                    </p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {organizerStats.totalRegistrations}
+                    </p>
                   </div>
                   <Users className="w-8 h-8 text-fme-orange" />
                 </div>
@@ -154,8 +167,12 @@ export default function OrganizerDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">Pending Approvals</p>
-                    <p className="text-2xl font-bold text-gray-900">{organizerStats.pendingApprovals}</p>
+                    <p className="text-sm font-medium text-gray-600">
+                      Pending Approvals
+                    </p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {organizerStats.pendingApprovals}
+                    </p>
                   </div>
                   <Bell className="w-8 h-8 text-yellow-500" />
                 </div>
@@ -196,14 +213,17 @@ export default function OrganizerDashboard() {
                           </span>
                           <span className="flex items-center">
                             <Users className="w-4 h-4 mr-1" />
-                            {event.registrations}/{event.maxParticipants} registered
+                            {event.registrations}/{event.maxParticipants}{" "}
+                            registered
                           </span>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
                         <Badge
                           variant={
-                            event.status === "published" ? "default" : "secondary"
+                            event.status === "published"
+                              ? "default"
+                              : "secondary"
                           }
                         >
                           {event.status}
@@ -228,10 +248,7 @@ export default function OrganizerDashboard() {
                         <Edit className="w-4 h-4 mr-2" />
                         Manage
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                      >
+                      <Button size="sm" variant="outline">
                         <BarChart3 className="w-4 h-4 mr-2" />
                         Analytics
                       </Button>
@@ -260,7 +277,9 @@ export default function OrganizerDashboard() {
                         <Plus className="w-4 h-4 mr-2" />
                         <span className="font-medium">Create New Event</span>
                       </div>
-                      <p className="text-sm text-gray-600">Start organizing your next event</p>
+                      <p className="text-sm text-gray-600">
+                        Start organizing your next event
+                      </p>
                     </div>
                   </Button>
 
@@ -274,7 +293,9 @@ export default function OrganizerDashboard() {
                         <Settings className="w-4 h-4 mr-2" />
                         <span className="font-medium">Organizer Settings</span>
                       </div>
-                      <p className="text-sm text-gray-600">Update your organizer profile</p>
+                      <p className="text-sm text-gray-600">
+                        Update your organizer profile
+                      </p>
                     </div>
                   </Button>
 
@@ -287,7 +308,9 @@ export default function OrganizerDashboard() {
                         <BarChart3 className="w-4 h-4 mr-2" />
                         <span className="font-medium">View Analytics</span>
                       </div>
-                      <p className="text-sm text-gray-600">Track event performance</p>
+                      <p className="text-sm text-gray-600">
+                        Track event performance
+                      </p>
                     </div>
                   </Button>
                 </div>

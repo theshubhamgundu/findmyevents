@@ -37,6 +37,7 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 2. Restart your development server:
+
 ```bash
 pnpm dev
 ```
@@ -50,6 +51,7 @@ pnpm dev
 5. Click "Run" to execute the schema
 
 This will create all necessary tables:
+
 - `profiles` - User profiles extending auth.users
 - `organizers` - Event organizer information
 - `events` - Event details and metadata
@@ -67,19 +69,25 @@ This will create all necessary tables:
 2. Configure the following:
 
 ### Site URL
+
 - Set to: `http://localhost:8080` (for development)
 - For production, set to your actual domain
 
 ### Redirect URLs
+
 Add these URLs to the "Redirect URLs" list:
+
 - `http://localhost:8080/auth/callback`
 - `https://yourdomain.com/auth/callback` (for production)
 
 ### Email Templates (Optional)
+
 Customize the confirmation and recovery email templates in "Authentication" → "Email Templates"
 
 ### OAuth Providers (Optional)
+
 To enable Google sign-in:
+
 1. Go to "Authentication" → "Providers"
 2. Enable "Google"
 3. Add your Google OAuth credentials:
@@ -131,7 +139,7 @@ VALUES (
 
 -- Create ticket types for the event
 INSERT INTO ticket_types (event_id, name, description, price, quantity_available)
-VALUES 
+VALUES
   ('EVENT_ID_HERE', 'Early Bird', 'Limited time early bird pricing', 19900, 50),
   ('EVENT_ID_HERE', 'Standard', 'Regular ticket price', 29900, 100),
   ('EVENT_ID_HERE', 'Premium', 'Includes workshop materials and lunch', 39900, 25);
