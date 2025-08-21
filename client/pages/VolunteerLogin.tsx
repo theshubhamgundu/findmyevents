@@ -50,13 +50,63 @@ export default function VolunteerLogin() {
       setError("");
 
       if (!isSupabaseConfigured) {
-        setError(
-          "Authentication is not available. Please configure Supabase connection.",
-        );
+        // Demo volunteer authentication
+        const demoVolunteers = [
+          {
+            id: "vol-demo-1",
+            username: "volunteer1",
+            password_hash: "volunteer123",
+            event_id: "demo-event-1",
+            events: {
+              id: "demo-event-1",
+              title: "AI/ML Workshop 2024",
+              venue: "Tech Hub Auditorium",
+              event_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+              city: "Mumbai"
+            }
+          },
+          {
+            id: "vol-demo-2",
+            username: "scanner",
+            password_hash: "scanner123",
+            event_id: "demo-event-2",
+            events: {
+              id: "demo-event-2",
+              title: "React Bootcamp 2024",
+              venue: "Innovation Center",
+              event_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+              city: "Delhi"
+            }
+          }
+        ];
+
+        const volunteer = demoVolunteers.find(v => v.username === data.username && v.password_hash === data.password);
+
+        if (!volunteer) {
+          setError("Invalid username or password. Try: volunteer1/volunteer123 or scanner/scanner123");
+          return;
+        }
+
+        // Store volunteer session using auth provider
+        const volunteerSession = {
+          id: volunteer.id,
+          username: volunteer.username,
+          event_id: volunteer.event_id,
+          event: volunteer.events,
+          logged_in_at: new Date().toISOString(),
+        };
+
+        loginVolunteer(volunteerSession);
+
+        // Navigate to volunteer dashboard or specific event if eventId is provided
+        const redirectTo = eventId
+          ? `/volunteer/scan/${eventId}`
+          : `/volunteer/scan/${volunteer.event_id}`;
+        navigate(redirectTo);
         return;
       }
 
-      // Authenticate volunteer
+      // Authenticate volunteer with Supabase
       const { data: volunteer, error: authError } = await supabase
         .from("volunteers")
         .select("*, events(*)")
