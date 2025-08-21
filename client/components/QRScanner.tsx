@@ -3,6 +3,7 @@ import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from "html5-qrcode";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+// Enhanced QR Scanner with mobile camera support and proper cleanup
 import { Badge } from "@/components/ui/badge";
 import {
   Camera,
