@@ -187,8 +187,9 @@ export default function VolunteerLogin() {
                 {!isSupabaseConfigured && (
                   <Alert>
                     <AlertDescription>
-                      <strong>Demo Mode:</strong> Authentication is disabled.
-                      Configure Supabase to enable real login functionality.
+                      <strong>Demo Mode:</strong> Use these volunteer credentials:<br/>
+                      <strong>Username:</strong> volunteer1 or scanner<br/>
+                      <strong>Password:</strong> volunteer123 or scanner123
                     </AlertDescription>
                   </Alert>
                 )}
