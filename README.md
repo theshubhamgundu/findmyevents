@@ -181,6 +181,13 @@ This project is licensed under the MIT License.
 - UI components by shadcn/ui
 - Icons by Lucide React
 
+## 🔄 Recent Updates
+
+- Enhanced QR scanner with improved camera handling and cleanup
+- Added proper media stream management for mobile devices
+- Improved authentication flow with logout event handling
+- Enhanced mobile-first responsive design
+
 ---
 
 **Ready to revolutionize student events? Let's build something amazing together! 🚀**
