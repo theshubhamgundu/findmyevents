@@ -26,14 +26,14 @@ export default function OrganizerDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user || !isConfigured) {
+    if (!user) {
       setLoading(false);
       return;
     }
 
     // Simulate loading organizer data
     setTimeout(() => setLoading(false), 1000);
-  }, [user, isConfigured]);
+  }, [user]);
 
   // Mock organizer data
   const organizerStats = {
