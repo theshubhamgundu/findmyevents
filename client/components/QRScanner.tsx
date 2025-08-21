@@ -48,37 +48,88 @@ export default function QRScanner({ eventId, onTicketScanned }: QRScannerProps) 
     };
   }, []);
 
-  const startScanner = () => {
+  const startScanner = async () => {
     if (scannerRef.current) {
       scannerRef.current.clear();
     }
 
-    const scanner = new Html5QrcodeScanner(
-      "qr-reader",
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-        experimentalFeatures: {
-          useBarCodeDetectorIfSupported: true,
-        },
-      },
-      false
-    );
-
-    scanner.render(
-      (decodedText) => handleScanSuccess(decodedText),
-      (error) => {
-        // Ignore continuous scanning errors
-        if (!error.includes('NotFoundException')) {
-          console.warn('QR scan error:', error);
+    try {
+      // Request camera permissions explicitly for mobile
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        try {
+          await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: { ideal: "environment" }, // Use back camera on mobile
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            }
+          });
+          console.log('Camera permission granted');
+        } catch (permissionError) {
+          console.warn('Camera permission denied:', permissionError);
+          setScanResult({
+            type: 'error',
+            message: 'Camera permission denied. Please allow camera access in your browser settings.'
+          });
+          return;
         }
       }
-    );
 
-    scannerRef.current = scanner;
-    setIsScanning(true);
-    setScanResult(null);
+      const scanner = new Html5QrcodeScanner(
+        "qr-reader",
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+          experimentalFeatures: {
+            useBarCodeDetectorIfSupported: true,
+          },
+          // Mobile-specific configurations
+          videoConstraints: {
+            facingMode: { ideal: "environment" }, // Prefer back camera
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
+          aspectRatio: 1.0,
+          showTorchButtonIfSupported: true, // Show flashlight on mobile
+        },
+        false
+      );
+
+      scanner.render(
+        (decodedText) => handleScanSuccess(decodedText),
+        (error) => {
+          // Ignore continuous scanning errors
+          if (!error.includes('NotFoundException')) {
+            console.warn('QR scan error:', error);
+            // Handle specific camera errors
+            if (error.includes('NotAllowedError') || error.includes('Permission')) {
+              setScanResult({
+                type: 'error',
+                message: 'Camera permission denied. Please allow camera access and try again.'
+              });
+              setIsScanning(false);
+            } else if (error.includes('NotFoundError')) {
+              setScanResult({
+                type: 'error',
+                message: 'No camera found. Please ensure your device has a camera.'
+              });
+              setIsScanning(false);
+            }
+          }
+        }
+      );
+
+      scannerRef.current = scanner;
+      setIsScanning(true);
+      setScanResult(null);
+    } catch (error) {
+      console.error('Error starting scanner:', error);
+      setScanResult({
+        type: 'error',
+        message: 'Failed to start camera. Please check your browser settings and try again.'
+      });
+    }
   };
 
   const stopScanner = () => {
