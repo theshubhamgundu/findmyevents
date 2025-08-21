@@ -19,6 +19,7 @@ import BecomeOrganizer from "./pages/BecomeOrganizer";
 import ManageEvent from "./pages/ManageEvent";
 import AdminPanel from "./pages/AdminPanel";
 import CoreAdminDashboard from "./pages/CoreAdminDashboard";
+import OrganizerDashboard from "./pages/OrganizerDashboard";
 import AuthCallback from "./pages/AuthCallback";
 import VolunteerLogin from "./pages/VolunteerLogin";
 import VolunteerDashboard from "./pages/VolunteerDashboard";
