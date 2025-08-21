@@ -19,6 +19,7 @@ import {
   LogOut,
   Settings,
   LayoutDashboard as DashboardIcon,
+  Shield,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
