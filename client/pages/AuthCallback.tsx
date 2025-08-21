@@ -52,8 +52,12 @@ export default function AuthCallback() {
             }
           }
 
-          // Redirect to dashboard
-          navigate("/dashboard");
+          // Redirect based on user role
+          if (profile?.role === "admin") {
+            navigate("/admin/dashboard");
+          } else {
+            navigate("/dashboard");
+          }
         } else {
           // No session, redirect to login
           navigate("/login");
