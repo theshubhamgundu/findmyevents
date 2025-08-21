@@ -223,7 +223,6 @@ export default function Dashboard() {
     return notifications.filter((n) => !n.is_read);
   };
 
-
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
