@@ -88,6 +88,25 @@ export default function QRScanner({
     }
 
     try {
+      // First set isScanning to true to render the qr-reader div
+      setIsScanning(true);
+      setScanResult(null);
+
+      // Wait for the DOM to update and render the qr-reader element
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Check if the qr-reader element exists
+      const qrReaderElement = document.getElementById("qr-reader");
+      if (!qrReaderElement) {
+        console.error("QR reader element not found in DOM");
+        setScanResult({
+          type: "error",
+          message: "Failed to initialize scanner. Please try again.",
+        });
+        setIsScanning(false);
+        return;
+      }
+
       // Request camera permissions explicitly for mobile
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         try {
@@ -106,6 +125,7 @@ export default function QRScanner({
             message:
               "Camera permission denied. Please allow camera access in your browser settings.",
           });
+          setIsScanning(false);
           return;
         }
       }
@@ -161,8 +181,6 @@ export default function QRScanner({
       );
 
       scannerRef.current = scanner;
-      setIsScanning(true);
-      setScanResult(null);
     } catch (error) {
       console.error("Error starting scanner:", error);
       setScanResult({
@@ -170,6 +188,7 @@ export default function QRScanner({
         message:
           "Failed to start camera. Please check your browser settings and try again.",
       });
+      setIsScanning(false);
     }
   };
 
