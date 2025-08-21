@@ -217,6 +217,14 @@ export default function Header() {
                 >
                   Create Event
                 </Link>
+                <Link
+                  to="/volunteer/login"
+                  className="text-green-700 hover:text-green-800 font-medium transition-colors flex items-center"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Shield className="w-4 h-4 mr-2" />
+                  Volunteer Scanner
+                </Link>
                 <div className="flex flex-col space-y-2 pt-4 border-t">
                   {user ? (
                     <>
