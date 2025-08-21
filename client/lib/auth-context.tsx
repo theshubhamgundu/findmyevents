@@ -109,6 +109,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // Demo organizer login bypass
+    if (email === "organizer" && password === "organizer123") {
+      // Create demo organizer user and profile with proper UUID
+      const demoUserId = "00000000-0000-4000-8000-000000000002"; // Valid UUID format
+      const demoUser = {
+        id: demoUserId,
+        email: "organizer@findmyevent.com",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        aud: "authenticated",
+        role: "authenticated",
+      } as User;
+
+      const demoProfile: Profile = {
+        id: demoUserId,
+        email: "organizer@findmyevent.com",
+        full_name: "Demo Organizer",
+        role: "organizer",
+        notification_preferences: {
+          email: true,
+          whatsapp: false,
+          telegram: false,
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      setUser(demoUser);
+      setProfile(demoProfile);
+      setLoading(false);
+      return;
+    }
+
     if (!isSupabaseConfigured) {
       throw new Error(
         "Authentication is not available. Please configure Supabase connection.",
