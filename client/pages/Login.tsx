@@ -172,7 +172,7 @@ export default function Login() {
 
       if (!isConfigured) {
         setError(
-          "Authentication is not available. Please configure Supabase connection.",
+          "Google sign-in requires Supabase configuration. Use demo credentials instead.",
         );
         return;
       }
