@@ -288,6 +288,35 @@ export const getUserTickets = async (userId: string) => {
     return [];
   }
 
+  // Handle demo student user
+  if (userId === "00000000-0000-4000-8000-000000000003") {
+    console.log("Demo student user - returning mock tickets");
+    return [
+      {
+        id: "demo-ticket-1",
+        user_id: userId,
+        event_id: "demo-event-1",
+        ticket_id: "FME-DEMO-001",
+        status: "active",
+        created_at: new Date().toISOString(),
+        event: {
+          id: "demo-event-1",
+          title: "AI/ML Workshop 2024",
+          venue: "Tech Hub Auditorium",
+          start_date: new Date(
+            Date.now() + 7 * 24 * 60 * 60 * 1000,
+          ).toISOString(),
+          city: "Mumbai",
+        },
+        ticket_type: {
+          id: "demo-ticket-type-1",
+          name: "Standard Pass",
+          price: 299,
+        },
+      },
+    ];
+  }
+
   if (!supabase) {
     console.warn("Supabase not configured - returning empty tickets array");
     return [];

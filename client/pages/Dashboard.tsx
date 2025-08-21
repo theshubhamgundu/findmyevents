@@ -71,8 +71,20 @@ export default function Dashboard() {
       return;
     }
 
+    // Redirect admin users to admin dashboard
+    if (profile?.role === "admin") {
+      navigate("/admin/dashboard");
+      return;
+    }
+
+    // Redirect organizer users to organizer dashboard
+    if (profile?.role === "organizer") {
+      navigate("/organizer/dashboard");
+      return;
+    }
+
     loadDashboardData();
-  }, [user, isConfigured]);
+  }, [user, profile, isConfigured, navigate]);
 
   const loadDashboardData = async () => {
     if (!user) return;

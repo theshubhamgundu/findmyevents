@@ -24,17 +24,21 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const emailLoginSchema = z.object({
-  email: z.string().min(1, "Email or username is required").refine(
-    (value) => {
-      // Allow admin username 'shubsss' without email validation
-      if (value === 'shubsss') return true;
-      // Otherwise require email format
-      return z.string().email().safeParse(value).success;
-    },
-    {
-      message: "Please enter a valid email address",
-    }
-  ),
+  email: z
+    .string()
+    .min(1, "Email or username is required")
+    .refine(
+      (value) => {
+        // Allow demo usernames without email validation
+        const demoUsernames = ["shubsss", "organizer", "admin", "student"];
+        if (demoUsernames.includes(value.toLowerCase())) return true;
+        // Otherwise require email format
+        return z.string().email().safeParse(value).success;
+      },
+      {
+        message: "Please enter a valid email address or demo username",
+      },
+    ),
   password: z.string().min(1, "Password is required"),
 });
 
@@ -98,7 +102,14 @@ export default function Login() {
       }
 
       await signIn(data.email, data.password);
-      navigate("/dashboard");
+
+      // Check if this is the admin demo login
+      if (data.email === "shubsss" && data.password === "shubsss@1911") {
+        navigate("/admin/dashboard");
+      } else {
+        // Let Dashboard component handle the role-based redirection
+        navigate("/dashboard");
+      }
     } catch (err: any) {
       setError(err.message || "Invalid email or password");
     } finally {
@@ -136,8 +147,13 @@ export default function Login() {
         return;
       }
 
-      // Mock successful login
-      navigate("/dashboard");
+      // Mock successful login - for demo, if phone is admin's phone, redirect to admin
+      if (phoneNumber === "+91-9876543210") {
+        // Admin's demo phone number
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err: any) {
       setError(err.message || "OTP verification failed");
     } finally {
@@ -262,9 +278,14 @@ export default function Login() {
                     {!isConfigured && (
                       <Alert>
                         <AlertDescription>
-                          <strong>Demo Mode:</strong> Authentication is
-                          disabled. Configure Supabase to enable real login
-                          functionality.
+                          <strong>Demo Mode:</strong> Use these credentials to
+                          test different user roles:
+                          <br />
+                          <strong>Admin:</strong> shubsss / shubsss@1911
+                          <br />
+                          <strong>Organizer:</strong> organizer / organizer123
+                          <br />
+                          <strong>Student:</strong> student / student123
                         </AlertDescription>
                       </Alert>
                     )}
