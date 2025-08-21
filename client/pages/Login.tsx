@@ -273,9 +273,10 @@ export default function Login() {
                     {!isConfigured && (
                       <Alert>
                         <AlertDescription>
-                          <strong>Demo Mode:</strong> Authentication is
-                          disabled. Configure Supabase to enable real login
-                          functionality.
+                          <strong>Demo Mode:</strong> Use these credentials to test different user roles:<br/>
+                          <strong>Admin:</strong> shubsss / shubsss@1911<br/>
+                          <strong>Organizer:</strong> organizer / organizer123<br/>
+                          <strong>Student:</strong> Any other email/password
                         </AlertDescription>
                       </Alert>
                     )}
