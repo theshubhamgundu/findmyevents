@@ -218,11 +218,40 @@ export default function QRScanner({
   };
 
   const stopScanner = () => {
-    if (scannerRef.current) {
-      scannerRef.current.clear();
-      scannerRef.current = null;
+    try {
+      if (scannerRef.current) {
+        // Clear the scanner
+        scannerRef.current.clear();
+        scannerRef.current = null;
+      }
+
+      // Additional cleanup: stop any active media streams
+      const qrReaderElement = document.getElementById('qr-reader');
+      if (qrReaderElement) {
+        // Find and stop any video elements
+        const videos = qrReaderElement.getElementsByTagName('video');
+        for (let i = 0; i < videos.length; i++) {
+          const video = videos[i];
+          if (video.srcObject) {
+            const stream = video.srcObject as MediaStream;
+            stream.getTracks().forEach(track => {
+              track.stop();
+              console.log('Stopped camera track:', track.kind);
+            });
+            video.srcObject = null;
+          }
+        }
+
+        // Clear the container
+        qrReaderElement.innerHTML = '';
+      }
+
+      setIsScanning(false);
+      console.log('QR scanner stopped and camera released');
+    } catch (error) {
+      console.error('Error stopping QR scanner:', error);
+      setIsScanning(false);
     }
-    setIsScanning(false);
   };
 
   const handleScanSuccess = async (decodedText: string) => {
