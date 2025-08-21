@@ -134,7 +134,16 @@ export default function QRScanner({
         "qr-reader",
         {
           fps: 10,
-          qrbox: { width: 250, height: 250 },
+          qrbox: function(viewfinderWidth, viewfinderHeight) {
+            // Calculate the optimal size for the QR box
+            const minEdgePercentage = 0.7; // 70% of the smaller edge
+            const minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+            const qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+            return {
+              width: qrboxSize,
+              height: qrboxSize,
+            };
+          },
           formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
           experimentalFeatures: {
             useBarCodeDetectorIfSupported: true,
@@ -142,11 +151,15 @@ export default function QRScanner({
           // Mobile-specific configurations
           videoConstraints: {
             facingMode: { ideal: "environment" }, // Prefer back camera
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
+            width: { min: 640, ideal: 1280, max: 1920 },
+            height: { min: 480, ideal: 720, max: 1080 },
           },
           aspectRatio: 1.0,
           showTorchButtonIfSupported: true, // Show flashlight on mobile
+          // Ensure the camera feed is displayed
+          disableFlip: false,
+          // Show zoom control if supported
+          showZoomSliderIfSupported: true,
         },
         false,
       );
