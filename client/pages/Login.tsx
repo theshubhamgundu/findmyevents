@@ -26,13 +26,14 @@ import Footer from "@/components/Footer";
 const emailLoginSchema = z.object({
   email: z.string().min(1, "Email or username is required").refine(
     (value) => {
-      // Allow admin username 'shubsss' without email validation
-      if (value === 'shubsss') return true;
+      // Allow demo usernames without email validation
+      const demoUsernames = ['shubsss', 'organizer', 'admin', 'student'];
+      if (demoUsernames.includes(value.toLowerCase())) return true;
       // Otherwise require email format
       return z.string().email().safeParse(value).success;
     },
     {
-      message: "Please enter a valid email address",
+      message: "Please enter a valid email address or demo username",
     }
   ),
   password: z.string().min(1, "Password is required"),
