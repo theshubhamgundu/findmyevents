@@ -78,6 +78,13 @@ export default function Header() {
               >
                 Create Event
               </Link>
+              <Link
+                to="/volunteer/login"
+                className="text-green-700 hover:text-green-800 font-medium transition-colors flex items-center"
+              >
+                <Shield className="w-4 h-4 mr-1" />
+                Volunteer
+              </Link>
             </nav>
 
             {/* Desktop Actions */}
