@@ -103,6 +103,7 @@ export default function Login() {
       if (data.email === "shubsss" && data.password === "shubsss@1911") {
         navigate("/admin/dashboard");
       } else {
+        // Let Dashboard component handle the role-based redirection
         navigate("/dashboard");
       }
     } catch (err: any) {
