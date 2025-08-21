@@ -74,11 +74,23 @@ export default function QRScanner({
   }, []);
 
   useEffect(() => {
+    // Listen for auth logout event to cleanup camera
+    const handleAuthLogout = () => {
+      console.log("Auth logout detected, cleaning up QR scanner...");
+      stopScanner();
+    };
+
+    window.addEventListener("authLogout", handleAuthLogout);
+
     return () => {
       // Cleanup scanner on unmount
       if (scannerRef.current) {
         scannerRef.current.clear();
+        scannerRef.current = null;
       }
+
+      // Remove event listener
+      window.removeEventListener("authLogout", handleAuthLogout);
     };
   }, []);
 
@@ -88,17 +100,42 @@ export default function QRScanner({
     }
 
     try {
+      // First set isScanning to true to render the qr-reader div
+      setIsScanning(true);
+      setScanResult(null);
+
+      // Wait for the DOM to update and render the qr-reader element
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      // Check if the qr-reader element exists
+      const qrReaderElement = document.getElementById("qr-reader");
+      if (!qrReaderElement) {
+        console.error("QR reader element not found in DOM");
+        setScanResult({
+          type: "error",
+          message: "Failed to initialize scanner. Please try again.",
+        });
+        setIsScanning(false);
+        return;
+      }
+
       // Request camera permissions explicitly for mobile
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         try {
-          await navigator.mediaDevices.getUserMedia({
+          const stream = await navigator.mediaDevices.getUserMedia({
             video: {
               facingMode: { ideal: "environment" }, // Use back camera on mobile
               width: { ideal: 1280 },
               height: { ideal: 720 },
             },
           });
+
+          // Store the stream globally for cleanup
+          (window as any).currentMediaStream = stream;
           console.log("Camera permission granted");
+
+          // Release the test stream as Html5QrcodeScanner will create its own
+          stream.getTracks().forEach((track) => track.stop());
         } catch (permissionError) {
           console.warn("Camera permission denied:", permissionError);
           setScanResult({
@@ -106,6 +143,7 @@ export default function QRScanner({
             message:
               "Camera permission denied. Please allow camera access in your browser settings.",
           });
+          setIsScanning(false);
           return;
         }
       }
@@ -114,7 +152,16 @@ export default function QRScanner({
         "qr-reader",
         {
           fps: 10,
-          qrbox: { width: 250, height: 250 },
+          qrbox: function (viewfinderWidth, viewfinderHeight) {
+            // Calculate the optimal size for the QR box
+            const minEdgePercentage = 0.7; // 70% of the smaller edge
+            const minEdgeSize = Math.min(viewfinderWidth, viewfinderHeight);
+            const qrboxSize = Math.floor(minEdgeSize * minEdgePercentage);
+            return {
+              width: qrboxSize,
+              height: qrboxSize,
+            };
+          },
           formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
           experimentalFeatures: {
             useBarCodeDetectorIfSupported: true,
@@ -122,11 +169,15 @@ export default function QRScanner({
           // Mobile-specific configurations
           videoConstraints: {
             facingMode: { ideal: "environment" }, // Prefer back camera
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
+            width: { min: 640, ideal: 1280, max: 1920 },
+            height: { min: 480, ideal: 720, max: 1080 },
           },
           aspectRatio: 1.0,
           showTorchButtonIfSupported: true, // Show flashlight on mobile
+          // Ensure the camera feed is displayed
+          disableFlip: false,
+          // Show zoom control if supported
+          showZoomSliderIfSupported: true,
         },
         false,
       );
@@ -161,8 +212,6 @@ export default function QRScanner({
       );
 
       scannerRef.current = scanner;
-      setIsScanning(true);
-      setScanResult(null);
     } catch (error) {
       console.error("Error starting scanner:", error);
       setScanResult({
@@ -170,15 +219,45 @@ export default function QRScanner({
         message:
           "Failed to start camera. Please check your browser settings and try again.",
       });
+      setIsScanning(false);
     }
   };
 
   const stopScanner = () => {
-    if (scannerRef.current) {
-      scannerRef.current.clear();
-      scannerRef.current = null;
+    try {
+      if (scannerRef.current) {
+        // Clear the scanner
+        scannerRef.current.clear();
+        scannerRef.current = null;
+      }
+
+      // Additional cleanup: stop any active media streams
+      const qrReaderElement = document.getElementById("qr-reader");
+      if (qrReaderElement) {
+        // Find and stop any video elements
+        const videos = qrReaderElement.getElementsByTagName("video");
+        for (let i = 0; i < videos.length; i++) {
+          const video = videos[i];
+          if (video.srcObject) {
+            const stream = video.srcObject as MediaStream;
+            stream.getTracks().forEach((track) => {
+              track.stop();
+              console.log("Stopped camera track:", track.kind);
+            });
+            video.srcObject = null;
+          }
+        }
+
+        // Clear the container
+        qrReaderElement.innerHTML = "";
+      }
+
+      setIsScanning(false);
+      console.log("QR scanner stopped and camera released");
+    } catch (error) {
+      console.error("Error stopping QR scanner:", error);
+      setIsScanning(false);
     }
-    setIsScanning(false);
   };
 
   const handleScanSuccess = async (decodedText: string) => {
@@ -413,7 +492,16 @@ export default function QRScanner({
       {isScanning && (
         <Card>
           <CardContent className="p-4">
-            <div id="qr-reader" className="w-full"></div>
+            <div
+              id="qr-reader"
+              className="w-full"
+              style={{
+                minHeight: "400px",
+                maxWidth: "100%",
+                aspectRatio: "1",
+                margin: "0 auto",
+              }}
+            ></div>
             {isProcessing && (
               <div className="text-center mt-4">
                 <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />

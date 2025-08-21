@@ -112,3 +112,41 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* QR Scanner specific styles */
+#qr-reader {
+  /* Ensure the QR reader container displays properly */
+  display: block !important;
+  position: relative;
+}
+
+#qr-reader > div {
+  /* Ensure inner divs have proper display */
+  display: block !important;
+}
+
+#qr-reader video {
+  /* Ensure video element displays properly */
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+  border-radius: 8px;
+}
+
+#qr-reader canvas {
+  /* Ensure canvas element displays properly */
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+}
+
+/* QR reader buttons and controls */
+#qr-reader button {
+  @apply bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors;
+}
+
+#qr-reader select {
+  @apply bg-white border border-gray-300 rounded px-3 py-2 text-gray-700;
+}

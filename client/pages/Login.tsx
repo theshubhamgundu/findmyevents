@@ -94,7 +94,11 @@ export default function Login() {
       setIsLoading(true);
       setError("");
 
-      if (!isConfigured) {
+      // Check for demo credentials first
+      const demoUsernames = ["shubsss", "organizer", "admin", "student"];
+      const isDemoLogin = demoUsernames.includes(data.email.toLowerCase());
+
+      if (!isConfigured && !isDemoLogin) {
         setError(
           "Authentication is not available. Please configure Supabase connection.",
         );
@@ -168,7 +172,7 @@ export default function Login() {
 
       if (!isConfigured) {
         setError(
-          "Authentication is not available. Please configure Supabase connection.",
+          "Google sign-in requires Supabase configuration. Use demo credentials instead.",
         );
         return;
       }
@@ -275,20 +279,18 @@ export default function Login() {
                     onSubmit={handleEmailSubmit(onEmailSubmit)}
                     className="space-y-4"
                   >
-                    {!isConfigured && (
-                      <Alert>
-                        <AlertDescription>
-                          <strong>Demo Mode:</strong> Use these credentials to
-                          test different user roles:
-                          <br />
-                          <strong>Admin:</strong> shubsss / shubsss@1911
-                          <br />
-                          <strong>Organizer:</strong> organizer / organizer123
-                          <br />
-                          <strong>Student:</strong> student / student123
-                        </AlertDescription>
-                      </Alert>
-                    )}
+                    <Alert>
+                      <AlertDescription>
+                        <strong>Demo Mode Available:</strong> Use these
+                        credentials to test different user roles:
+                        <br />
+                        <strong>Admin:</strong> shubsss / shubsss@1911
+                        <br />
+                        <strong>Organizer:</strong> organizer / organizer123
+                        <br />
+                        <strong>Student:</strong> student / student123
+                      </AlertDescription>
+                    </Alert>
 
                     {error && (
                       <Alert variant="destructive">
