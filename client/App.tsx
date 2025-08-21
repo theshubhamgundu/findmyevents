@@ -25,6 +25,7 @@ import VolunteerDashboard from "./pages/VolunteerDashboard";
 import { AuthProvider } from "./lib/auth-context";
 import { VolunteerAuthProvider } from "./hooks/use-volunteer-auth";
 import VolunteerRouteGuard from "./components/VolunteerRouteGuard";
+import AdminRouteGuard from "./components/AdminRouteGuard";
 import { User, Shield, Bell, HelpCircle } from "lucide-react";
 
 const queryClient = new QueryClient();
