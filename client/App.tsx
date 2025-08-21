@@ -45,9 +45,23 @@ const App = () => (
             <Route path="/events" element={<Events />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/create-event" element={<CreateEvent />} />
+            <Route
+              path="/create-event"
+              element={
+                <OrganizerRouteGuard>
+                  <CreateEvent />
+                </OrganizerRouteGuard>
+              }
+            />
             <Route path="/become-organizer" element={<BecomeOrganizer />} />
-            <Route path="/manage-event/:eventId" element={<ManageEvent />} />
+            <Route
+              path="/manage-event/:eventId"
+              element={
+                <OrganizerRouteGuard>
+                  <ManageEvent />
+                </OrganizerRouteGuard>
+              }
+            />
             <Route
               path="/admin"
               element={
