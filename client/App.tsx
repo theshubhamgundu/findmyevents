@@ -47,9 +47,30 @@ const App = () => (
             <Route path="/create-event" element={<CreateEvent />} />
             <Route path="/become-organizer" element={<BecomeOrganizer />} />
             <Route path="/manage-event/:eventId" element={<ManageEvent />} />
-            <Route path="/admin" element={<AdminPanel />} />
-            <Route path="/admin/dashboard" element={<CoreAdminDashboard />} />
-            <Route path="/CoreAdminDashboard" element={<CoreAdminDashboard />} />
+            <Route
+              path="/admin"
+              element={
+                <AdminRouteGuard>
+                  <AdminPanel />
+                </AdminRouteGuard>
+              }
+            />
+            <Route
+              path="/admin/dashboard"
+              element={
+                <AdminRouteGuard>
+                  <CoreAdminDashboard />
+                </AdminRouteGuard>
+              }
+            />
+            <Route
+              path="/CoreAdminDashboard"
+              element={
+                <AdminRouteGuard>
+                  <CoreAdminDashboard />
+                </AdminRouteGuard>
+              }
+            />
 
             {/* Auth Pages */}
             <Route path="/login" element={<Login />} />
