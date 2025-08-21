@@ -369,7 +369,8 @@ export default function QRScanner({ eventId, onTicketScanned }: QRScannerProps) 
                 </p>
                 <Button
                   onClick={startScanner}
-                  className="bg-fme-blue hover:bg-fme-blue/90"
+                  disabled={!cameraSupported}
+                  className="bg-fme-blue hover:bg-fme-blue/90 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Camera className="w-4 h-4 mr-2" />
                   Start Scanning
