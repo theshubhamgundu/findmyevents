@@ -279,20 +279,18 @@ export default function Login() {
                     onSubmit={handleEmailSubmit(onEmailSubmit)}
                     className="space-y-4"
                   >
-                    {!isConfigured && (
-                      <Alert>
-                        <AlertDescription>
-                          <strong>Demo Mode:</strong> Use these credentials to
-                          test different user roles:
-                          <br />
-                          <strong>Admin:</strong> shubsss / shubsss@1911
-                          <br />
-                          <strong>Organizer:</strong> organizer / organizer123
-                          <br />
-                          <strong>Student:</strong> student / student123
-                        </AlertDescription>
-                      </Alert>
-                    )}
+                    <Alert>
+                      <AlertDescription>
+                        <strong>Demo Mode Available:</strong> Use these credentials to
+                        test different user roles:
+                        <br />
+                        <strong>Admin:</strong> shubsss / shubsss@1911
+                        <br />
+                        <strong>Organizer:</strong> organizer / organizer123
+                        <br />
+                        <strong>Student:</strong> student / student123
+                      </AlertDescription>
+                    </Alert>
 
                     {error && (
                       <Alert variant="destructive">
