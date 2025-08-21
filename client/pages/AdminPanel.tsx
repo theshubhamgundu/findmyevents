@@ -240,21 +240,6 @@ export default function AdminPanel() {
     }
   };
 
-  if (!isConfigured) {
-    return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header />
-        <main className="flex-1 flex items-center justify-center">
-          <Alert>
-            <AlertDescription>
-              Admin panel requires Supabase configuration.
-            </AlertDescription>
-          </Alert>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
 
   if (!user || profile?.role !== 'admin') {
     return (
