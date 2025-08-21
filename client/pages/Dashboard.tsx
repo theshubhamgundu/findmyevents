@@ -77,6 +77,12 @@ export default function Dashboard() {
       return;
     }
 
+    // Redirect organizer users to organizer dashboard
+    if (profile?.role === "organizer") {
+      navigate("/organizer/dashboard");
+      return;
+    }
+
     loadDashboardData();
   }, [user, profile, isConfigured, navigate]);
 
