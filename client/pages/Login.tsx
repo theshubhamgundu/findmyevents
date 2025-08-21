@@ -94,7 +94,11 @@ export default function Login() {
       setIsLoading(true);
       setError("");
 
-      if (!isConfigured) {
+      // Check for demo credentials first
+      const demoUsernames = ["shubsss", "organizer", "admin", "student"];
+      const isDemoLogin = demoUsernames.includes(data.email.toLowerCase());
+
+      if (!isConfigured && !isDemoLogin) {
         setError(
           "Authentication is not available. Please configure Supabase connection.",
         );
