@@ -177,13 +177,13 @@ export default function CoreAdminDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user || !isConfigured || profile?.role !== 'admin') {
+    if (!user || profile?.role !== 'admin') {
       setLoading(false);
       return;
     }
 
     loadAdminData();
-  }, [user, profile, isConfigured]);
+  }, [user, profile]);
 
   const loadAdminData = async () => {
     try {
