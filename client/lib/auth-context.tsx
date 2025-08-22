@@ -307,6 +307,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.warn("Error during camera cleanup:", error);
     }
 
+    // Clear demo session storage
+    localStorage.removeItem('demo_user_session');
+
     // Clear user state for demo users (non-Supabase)
     if (!isSupabaseConfigured) {
       setUser(null);
