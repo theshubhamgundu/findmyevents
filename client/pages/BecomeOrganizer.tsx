@@ -57,6 +57,13 @@ export default function BecomeOrganizer() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
 
+  // If user is already an organizer, redirect to organizer dashboard
+  useEffect(() => {
+    if (profile?.role === 'organizer') {
+      navigate('/organizer/dashboard');
+    }
+  }, [profile, navigate]);
+
   const {
     register,
     handleSubmit,
