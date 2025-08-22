@@ -334,13 +334,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {
-    if (!isSupabaseConfigured) {
-      throw new Error(
-        "Profile updates are not available. Please configure Supabase connection.",
-      );
-    }
-
     if (!user) throw new Error("No user logged in");
+
+    // Handle demo users
+    if (!isSupabaseConfigured) {
+      const updatedProfile = { ...profile, ...updates, updated_at: new Date().toISOString() };
+      setProfile(updatedProfile);
+
+      // Update localStorage session
+      const currentSession = localStorage.getItem('demo_user_session');
+      if (currentSession) {
+        const session = JSON.parse(currentSession);
+        session.profile = updatedProfile;
+        localStorage.setItem('demo_user_session', JSON.stringify(session));
+      }
+      return;
+    }
 
     const { error } = await supabase
       .from("profiles")
