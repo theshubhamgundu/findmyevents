@@ -28,8 +28,10 @@ export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
     return <Navigate to="/login" replace />;
   }
 
-  // Check if user has admin role
-  if (profile?.role !== "admin") {
+  // Check if user has admin role or is demo admin user
+  const isDemoAdmin = user?.id === "00000000-0000-4000-8000-000000000001";
+
+  if (profile?.role !== "admin" && !isDemoAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md w-full mx-4">
