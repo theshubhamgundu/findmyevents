@@ -423,14 +423,15 @@ export default function CoreAdminDashboard() {
     // In real implementation, this would generate CSV/Excel files
   };
 
-  if (!isConfigured) {
+  // Allow demo admin users even without Supabase configuration
+  if (!isConfigured && (!user || user.id !== "00000000-0000-4000-8000-000000000001")) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
         <Header />
         <main className="flex-1 flex items-center justify-center">
           <Alert>
             <AlertDescription>
-              Admin dashboard requires Supabase configuration.
+              Admin dashboard requires Supabase configuration or demo admin login.
             </AlertDescription>
           </Alert>
         </main>
