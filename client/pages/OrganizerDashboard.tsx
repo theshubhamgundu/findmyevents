@@ -26,7 +26,15 @@ export default function OrganizerDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user || !isConfigured) {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    // Check if user is demo organizer
+    const isDemoOrganizer = user.id === "00000000-0000-4000-8000-000000000002";
+
+    if (!isConfigured && !isDemoOrganizer) {
       setLoading(false);
       return;
     }
