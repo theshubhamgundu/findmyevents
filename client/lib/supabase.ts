@@ -378,9 +378,6 @@ export const registerForEvent = async (registrationData: any) => {
 
 export const getOrganizerByUserId = async (userId: string) => {
   // Handle demo organizer user
-  const { isDemoUser, getDemoOrganizer, DEMO_USER_IDS } = await import(
-    "./demo-data"
-  );
   if (isDemoUser(userId) && userId === DEMO_USER_IDS.ORGANIZER) {
     return getDemoOrganizer();
   }
