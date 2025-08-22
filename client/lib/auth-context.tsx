@@ -206,21 +206,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Handle demo users
     if (!isSupabaseConfigured) {
+      // Ensure profile exists before spreading
+      if (!profile) {
+        console.error("Profile is null, cannot update");
+        return;
+      }
+
       const updatedProfile = {
         ...profile,
         ...updates,
         updated_at: new Date().toISOString(),
-      };
+      } as Profile;
+
       setProfile(updatedProfile);
 
       // Update demo session
-      const currentSession = loadDemoSession();
-      if (currentSession) {
-        currentSession.profile = updatedProfile;
-        localStorage.setItem(
-          "demo_user_session",
-          JSON.stringify(currentSession),
-        );
+      try {
+        const currentSession = loadDemoSession();
+        if (currentSession) {
+          currentSession.profile = updatedProfile;
+          localStorage.setItem(
+            "demo_user_session",
+            JSON.stringify(currentSession),
+          );
+        }
+      } catch (error) {
+        console.error('Failed to update demo session:', error);
       }
       return;
     }
