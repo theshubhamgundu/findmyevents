@@ -76,10 +76,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
-    // Demo admin login bypass
+    // Demo admin login bypass - simulates database-stored admin user
     if (email === "shubsss" && password === "shubsss@1911") {
-      // Create demo admin user and profile with proper UUID
-      const demoUserId = "00000000-0000-4000-8000-000000000001"; // Valid UUID format
+      const demoUserId = "00000000-0000-4000-8000-000000000001";
       const demoUser = {
         id: demoUserId,
         email: "admin@findmyevent.com",
@@ -87,21 +86,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updated_at: new Date().toISOString(),
         aud: "authenticated",
         role: "authenticated",
+        // Simulate database metadata
+        user_metadata: {
+          provider: "demo",
+          verified: true,
+          last_sign_in: new Date().toISOString()
+        }
       } as User;
 
       const demoProfile: Profile = {
         id: demoUserId,
         email: "admin@findmyevent.com",
-        full_name: "Admin User",
+        full_name: "System Administrator",
         role: "admin",
+        phone: "+91-9876543210",
+        city: "Mumbai",
+        college: "FindMyEvent HQ",
+        year_of_study: null,
+        interests: ["platform_management", "user_analytics"],
         notification_preferences: {
           email: true,
-          whatsapp: false,
+          whatsapp: true,
           telegram: false,
         },
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        last_active: new Date().toISOString(),
+        verification_status: "verified",
+        profile_completion: 100
       };
+
+      // Simulate database session storage
+      localStorage.setItem('demo_user_session', JSON.stringify({ user: demoUser, profile: demoProfile }));
 
       setUser(demoUser);
       setProfile(demoProfile);
@@ -109,10 +125,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Demo organizer login bypass
+    // Demo organizer login bypass - simulates database-stored organizer user
     if (email === "organizer" && password === "organizer123") {
-      // Create demo organizer user and profile with proper UUID
-      const demoUserId = "00000000-0000-4000-8000-000000000002"; // Valid UUID format
+      const demoUserId = "00000000-0000-4000-8000-000000000002";
       const demoUser = {
         id: demoUserId,
         email: "organizer@findmyevent.com",
@@ -120,21 +135,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updated_at: new Date().toISOString(),
         aud: "authenticated",
         role: "authenticated",
+        user_metadata: {
+          provider: "demo",
+          verified: true,
+          last_sign_in: new Date().toISOString()
+        }
       } as User;
 
       const demoProfile: Profile = {
         id: demoUserId,
         email: "organizer@findmyevent.com",
-        full_name: "Demo Organizer",
+        full_name: "Tech Events Organizer",
         role: "organizer",
+        phone: "+91-9123456789",
+        city: "Bangalore",
+        college: "IIT Bangalore",
+        year_of_study: null,
+        interests: ["event_management", "hackathons", "workshops"],
         notification_preferences: {
           email: true,
-          whatsapp: false,
-          telegram: false,
+          whatsapp: true,
+          telegram: true,
         },
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        last_active: new Date().toISOString(),
+        verification_status: "verified",
+        profile_completion: 95
       };
+
+      // Simulate database session storage
+      localStorage.setItem('demo_user_session', JSON.stringify({ user: demoUser, profile: demoProfile }));
 
       setUser(demoUser);
       setProfile(demoProfile);
@@ -142,10 +173,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Demo student login bypass
+    // Demo student login bypass - simulates database-stored student user
     if (email === "student" && password === "student123") {
-      // Create demo student user and profile with proper UUID
-      const demoUserId = "00000000-0000-4000-8000-000000000003"; // Valid UUID format
+      const demoUserId = "00000000-0000-4000-8000-000000000003";
       const demoUser = {
         id: demoUserId,
         email: "student@findmyevent.com",
@@ -153,21 +183,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         updated_at: new Date().toISOString(),
         aud: "authenticated",
         role: "authenticated",
+        user_metadata: {
+          provider: "demo",
+          verified: true,
+          last_sign_in: new Date().toISOString()
+        }
       } as User;
 
       const demoProfile: Profile = {
         id: demoUserId,
         email: "student@findmyevent.com",
-        full_name: "Demo Student",
+        full_name: "CS Student",
         role: "student",
+        phone: "+91-9987654321",
+        city: "Delhi",
+        college: "Delhi Technological University",
+        year_of_study: "3rd Year",
+        interests: ["hackathons", "ai_ml", "web_development", "coding_competitions"],
         notification_preferences: {
           email: true,
-          whatsapp: false,
+          whatsapp: true,
           telegram: false,
         },
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
+        last_active: new Date().toISOString(),
+        verification_status: "verified",
+        profile_completion: 85
       };
+
+      // Simulate database session storage
+      localStorage.setItem('demo_user_session', JSON.stringify({ user: demoUser, profile: demoProfile }));
 
       setUser(demoUser);
       setProfile(demoProfile);
