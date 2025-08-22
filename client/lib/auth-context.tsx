@@ -36,10 +36,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // If Supabase is not configured, check for demo session
     if (!isSupabaseConfigured) {
       // Restore demo session if exists
-      const demoSession = loadDemoSession();
-      if (demoSession) {
-        setUser(demoSession.user);
-        setProfile(demoSession.profile);
+      try {
+        const demoSession = loadDemoSession();
+        if (demoSession) {
+          setUser(demoSession.user);
+          setProfile(demoSession.profile);
+        }
+      } catch (error) {
+        console.error("Failed to load demo session:", error);
+        // Clear corrupted session
+        localStorage.removeItem('demo_user_session');
       }
       setLoading(false);
       return;
