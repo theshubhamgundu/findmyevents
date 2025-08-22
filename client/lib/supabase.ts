@@ -415,7 +415,6 @@ export const createOrganizer = async (organizerData: any) => {
 export const getOrganizerEvents = async (organizerId: string) => {
   // Handle demo organizer events
   if (organizerId === "demo-organizer-1") {
-    const { getDemoEvents } = await import("./demo-data");
     return getDemoEvents();
   }
 
