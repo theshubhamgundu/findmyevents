@@ -26,8 +26,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // If Supabase is not configured, don't try to connect
+    // If Supabase is not configured, check for demo session
     if (!isSupabaseConfigured) {
+      // Restore demo session if exists
+      const savedSession = localStorage.getItem('demo_user_session');
+      if (savedSession) {
+        try {
+          const { user, profile } = JSON.parse(savedSession);
+          setUser(user);
+          setProfile(profile);
+        } catch (error) {
+          console.warn('Failed to restore demo session:', error);
+          localStorage.removeItem('demo_user_session');
+        }
+      }
       setLoading(false);
       return;
     }
