@@ -1,6 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase, getCurrentProfile, isSupabaseConfigured } from "./supabase";
+import {
+  getDemoUserByCredentials,
+  getDemoProfile,
+  saveDemoSession,
+  loadDemoSession,
+  clearDemoSession,
+} from "./demo-data";
 import type { Profile } from "@shared/types";
 
 interface AuthContextType {
@@ -26,8 +33,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // If Supabase is not configured, don't try to connect
+    // If Supabase is not configured, check for demo session
     if (!isSupabaseConfigured) {
+      // Restore demo session if exists
+      const demoSession = loadDemoSession();
+      if (demoSession) {
+        setUser(demoSession.user);
+        setProfile(demoSession.profile);
+      }
       setLoading(false);
       return;
     }
@@ -76,103 +89,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
-    // Demo admin login bypass
-    if (email === "shubsss" && password === "shubsss@1911") {
-      // Create demo admin user and profile with proper UUID
-      const demoUserId = "00000000-0000-4000-8000-000000000001"; // Valid UUID format
-      const demoUser = {
-        id: demoUserId,
-        email: "admin@findmyevent.com",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        aud: "authenticated",
-        role: "authenticated",
-      } as User;
-
-      const demoProfile: Profile = {
-        id: demoUserId,
-        email: "admin@findmyevent.com",
-        full_name: "Admin User",
-        role: "admin",
-        notification_preferences: {
-          email: true,
-          whatsapp: false,
-          telegram: false,
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      setUser(demoUser);
-      setProfile(demoProfile);
-      setLoading(false);
-      return;
-    }
-
-    // Demo organizer login bypass
-    if (email === "organizer" && password === "organizer123") {
-      // Create demo organizer user and profile with proper UUID
-      const demoUserId = "00000000-0000-4000-8000-000000000002"; // Valid UUID format
-      const demoUser = {
-        id: demoUserId,
-        email: "organizer@findmyevent.com",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        aud: "authenticated",
-        role: "authenticated",
-      } as User;
-
-      const demoProfile: Profile = {
-        id: demoUserId,
-        email: "organizer@findmyevent.com",
-        full_name: "Demo Organizer",
-        role: "organizer",
-        notification_preferences: {
-          email: true,
-          whatsapp: false,
-          telegram: false,
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      setUser(demoUser);
-      setProfile(demoProfile);
-      setLoading(false);
-      return;
-    }
-
-    // Demo student login bypass
-    if (email === "student" && password === "student123") {
-      // Create demo student user and profile with proper UUID
-      const demoUserId = "00000000-0000-4000-8000-000000000003"; // Valid UUID format
-      const demoUser = {
-        id: demoUserId,
-        email: "student@findmyevent.com",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        aud: "authenticated",
-        role: "authenticated",
-      } as User;
-
-      const demoProfile: Profile = {
-        id: demoUserId,
-        email: "student@findmyevent.com",
-        full_name: "Demo Student",
-        role: "student",
-        notification_preferences: {
-          email: true,
-          whatsapp: false,
-          telegram: false,
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      setUser(demoUser);
-      setProfile(demoProfile);
-      setLoading(false);
-      return;
+    // Check for demo user credentials
+    const demoUserId = getDemoUserByCredentials(email, password);
+    if (demoUserId) {
+      const sessionData = saveDemoSession(demoUserId);
+      if (sessionData) {
+        setUser(sessionData.user as User);
+        setProfile(sessionData.profile);
+        setLoading(false);
+        return;
+      }
     }
 
     if (!isSupabaseConfigured) {
@@ -261,6 +187,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.warn("Error during camera cleanup:", error);
     }
 
+    // Clear demo session
+    clearDemoSession();
+
     // Clear user state for demo users (non-Supabase)
     if (!isSupabaseConfigured) {
       setUser(null);
@@ -273,13 +202,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {
-    if (!isSupabaseConfigured) {
-      throw new Error(
-        "Profile updates are not available. Please configure Supabase connection.",
-      );
-    }
-
     if (!user) throw new Error("No user logged in");
+
+    // Handle demo users
+    if (!isSupabaseConfigured) {
+      const updatedProfile = {
+        ...profile,
+        ...updates,
+        updated_at: new Date().toISOString(),
+      };
+      setProfile(updatedProfile);
+
+      // Update demo session
+      const currentSession = loadDemoSession();
+      if (currentSession) {
+        currentSession.profile = updatedProfile;
+        localStorage.setItem(
+          "demo_user_session",
+          JSON.stringify(currentSession),
+        );
+      }
+      return;
+    }
 
     const { error } = await supabase
       .from("profiles")

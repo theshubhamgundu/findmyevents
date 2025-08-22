@@ -43,6 +43,7 @@ import {
   updateEventAnalytics,
   getEvents,
 } from "@/lib/supabase";
+import { isDemoUser, getDemoEvents } from "@/lib/demo-data";
 import { generateTicketQR, downloadQRCode } from "@/lib/qr-utils";
 import { formatCurrency } from "@/lib/payment-utils";
 import Header from "@/components/Header";
@@ -66,7 +67,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user || !isConfigured) {
+    if (!user) {
       setLoading(false);
       return;
     }
@@ -83,8 +84,22 @@ export default function Dashboard() {
       return;
     }
 
-    loadDashboardData();
+    // Only load data if configured or if it's a demo user
+    if (isConfigured || isDemoUser(user)) {
+      loadDashboardData();
+    } else {
+      setLoading(false);
+    }
   }, [user, profile, isConfigured, navigate]);
+
+  const isDemoUser = (user: any) => {
+    const demoUserIds = [
+      "00000000-0000-4000-8000-000000000001", // admin
+      "00000000-0000-4000-8000-000000000002", // organizer
+      "00000000-0000-4000-8000-000000000003", // student
+    ];
+    return demoUserIds.includes(user?.id);
+  };
 
   const loadDashboardData = async () => {
     if (!user) return;
@@ -97,7 +112,13 @@ export default function Dashboard() {
       setTickets(userTickets);
 
       // Load all events for categorization
-      const allEvents = await getEvents();
+      let allEvents;
+      if (isDemoUser(user.id)) {
+        // Use demo events for demo users
+        allEvents = getDemoEvents();
+      } else {
+        allEvents = await getEvents();
+      }
 
       // For students, categorize events
       if (profile?.role === "student") {
@@ -110,7 +131,7 @@ export default function Dashboard() {
               (interest) =>
                 event.event_type === interest ||
                 event.tags?.some((tag) =>
-                  profile.interests.includes(tag.toLowerCase()),
+                  profile.interests?.includes(tag.toLowerCase()),
                 ),
             );
           })
@@ -223,7 +244,8 @@ export default function Dashboard() {
     return notifications.filter((n) => !n.is_read);
   };
 
-  if (!isConfigured) {
+  // Allow demo users to access dashboard even without Supabase configuration
+  if (!isConfigured && !isDemoUser(user)) {
     return (
       <div className="min-h-screen flex flex-col bg-gray-50">
         <Header />
@@ -233,7 +255,8 @@ export default function Dashboard() {
               <AlertCircle className="w-12 h-12 text-fme-orange mx-auto mb-4" />
               <h2 className="text-xl font-semibold mb-2">Demo Mode</h2>
               <p className="text-gray-600 mb-4">
-                Dashboard functionality requires Supabase configuration.
+                Dashboard functionality requires Supabase configuration or demo
+                login.
               </p>
               <Button
                 onClick={() => navigate("/events")}
