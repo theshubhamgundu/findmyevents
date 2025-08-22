@@ -1,57 +1,73 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Building, 
-  Upload, 
-  Loader2, 
-  Shield, 
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Building,
+  Upload,
+  Loader2,
+  Shield,
   CheckCircle,
   AlertCircle,
   FileText,
   Globe,
   Mail,
   Instagram,
-  Linkedin
-} from 'lucide-react';
-import { useAuth } from '@/lib/auth-context';
-import { createOrganizer, uploadFile, getFileUrl } from '@/lib/supabase';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import type { CreateOrganizerRequest } from '@shared/types';
+  Linkedin,
+} from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
+import { createOrganizer, uploadFile, getFileUrl } from "@/lib/supabase";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import type { CreateOrganizerRequest } from "@shared/types";
 
 const organizerSchema = z.object({
-  organization_name: z.string().min(2, 'Organization name is required'),
-  organization_type: z.enum(['college', 'club', 'startup', 'company']),
-  official_email: z.string().email('Valid email required').optional(),
-  website_url: z.string().url('Valid URL required').optional(),
+  organization_name: z.string().min(2, "Organization name is required"),
+  organization_type: z.enum(["college", "club", "startup", "company"]),
+  official_email: z.string().email("Valid email required").optional(),
+  website_url: z.string().url("Valid URL required").optional(),
   instagram_handle: z.string().optional(),
-  linkedin_url: z.string().url('Valid LinkedIn URL required').optional(),
+  linkedin_url: z.string().url("Valid LinkedIn URL required").optional(),
   twitter_handle: z.string().optional(),
-  description: z.string().min(50, 'Please provide a detailed description (minimum 50 characters)'),
+  description: z
+    .string()
+    .min(50, "Please provide a detailed description (minimum 50 characters)"),
 });
 
 type OrganizerForm = z.infer<typeof organizerSchema>;
 
 const organizationTypes = [
-  { value: 'college', label: 'College/University', description: 'Educational institution' },
-  { value: 'club', label: 'Student Club', description: 'Student organization or club' },
-  { value: 'startup', label: 'Startup', description: 'Early-stage company' },
-  { value: 'company', label: 'Company', description: 'Established business' },
+  {
+    value: "college",
+    label: "College/University",
+    description: "Educational institution",
+  },
+  {
+    value: "club",
+    label: "Student Club",
+    description: "Student organization or club",
+  },
+  { value: "startup", label: "Startup", description: "Early-stage company" },
+  { value: "company", label: "Company", description: "Established business" },
 ];
 
 export default function BecomeOrganizer() {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState(false);
   const [uploadedDocs, setUploadedDocs] = useState<string[]>([]);
   const { user, profile } = useAuth();
@@ -59,8 +75,8 @@ export default function BecomeOrganizer() {
 
   // If user is already an organizer, redirect to organizer dashboard
   useEffect(() => {
-    if (profile?.role === 'organizer') {
-      navigate('/organizer/dashboard');
+    if (profile?.role === "organizer") {
+      navigate("/organizer/dashboard");
     }
   }, [profile, navigate]);
 
@@ -76,14 +92,14 @@ export default function BecomeOrganizer() {
   const onSubmit = async (data: OrganizerForm) => {
     try {
       setIsLoading(true);
-      setError('');
+      setError("");
 
       if (!user) {
-        throw new Error('You must be logged in to become an organizer');
+        throw new Error("You must be logged in to become an organizer");
       }
 
       if (uploadedDocs.length === 0) {
-        throw new Error('Please upload at least one verification document');
+        throw new Error("Please upload at least one verification document");
       }
 
       const organizerData = {
@@ -98,30 +114,32 @@ export default function BecomeOrganizer() {
           twitter: data.twitter_handle,
         },
         verification_documents: uploadedDocs,
-        verification_status: 'pending',
+        verification_status: "pending",
       };
 
       await createOrganizer(organizerData);
       setSuccess(true);
     } catch (err: any) {
-      setError(err.message || 'Failed to submit organizer application');
+      setError(err.message || "Failed to submit organizer application");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     try {
       const fileName = `${user?.id}/${Date.now()}-${file.name}`;
-      const { path } = await uploadFile('verification-docs', fileName, file);
-      const fileUrl = getFileUrl('verification-docs', path);
-      setUploadedDocs(prev => [...prev, fileUrl]);
+      const { path } = await uploadFile("verification-docs", fileName, file);
+      const fileUrl = getFileUrl("verification-docs", path);
+      setUploadedDocs((prev) => [...prev, fileUrl]);
     } catch (error) {
-      console.error('Upload failed:', error);
-      setError('Failed to upload document. Please try again.');
+      console.error("Upload failed:", error);
+      setError("Failed to upload document. Please try again.");
     }
   };
 
@@ -137,8 +155,8 @@ export default function BecomeOrganizer() {
               <p className="text-gray-600 mb-4">
                 Please log in to apply as an organizer.
               </p>
-              <Button 
-                onClick={() => navigate('/login')}
+              <Button
+                onClick={() => navigate("/login")}
                 className="bg-fme-blue hover:bg-fme-blue/90"
               >
                 Go to Login
@@ -163,11 +181,14 @@ export default function BecomeOrganizer() {
                 Application Submitted!
               </h2>
               <p className="text-lg text-gray-600 mb-6">
-                Thank you for applying to become an organizer. Your application is now under review.
+                Thank you for applying to become an organizer. Your application
+                is now under review.
               </p>
-              
+
               <div className="bg-blue-50 rounded-lg p-6 mb-6">
-                <h3 className="font-semibold text-fme-blue mb-3">What happens next?</h3>
+                <h3 className="font-semibold text-fme-blue mb-3">
+                  What happens next?
+                </h3>
                 <div className="text-left space-y-2 text-sm text-gray-700">
                   <div className="flex items-center">
                     <div className="w-2 h-2 bg-fme-blue rounded-full mr-3"></div>
@@ -187,18 +208,15 @@ export default function BecomeOrganizer() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  onClick={() => navigate('/dashboard')}
+                <Button
+                  onClick={() => navigate("/dashboard")}
                   className="bg-fme-blue hover:bg-fme-blue/90"
                 >
                   Go to Dashboard
                 </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => navigate('/events')}
-                >
+                <Button variant="outline" onClick={() => navigate("/events")}>
                   Browse Events
                 </Button>
               </div>
@@ -213,7 +231,7 @@ export default function BecomeOrganizer() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      
+
       <main className="flex-1 py-8">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
@@ -225,7 +243,8 @@ export default function BecomeOrganizer() {
               Become an Event Organizer
             </h1>
             <p className="text-xl text-gray-600">
-              Join FindMyEvent and start hosting amazing tech events for students
+              Join FindMyEvent and start hosting amazing tech events for
+              students
             </p>
           </div>
 
@@ -235,21 +254,27 @@ export default function BecomeOrganizer() {
               <CardContent className="p-6 text-center">
                 <Shield className="w-10 h-10 text-fme-blue mx-auto mb-3" />
                 <h3 className="font-semibold mb-2">Verified Badge</h3>
-                <p className="text-sm text-gray-600">Get a verified organizer badge for credibility</p>
+                <p className="text-sm text-gray-600">
+                  Get a verified organizer badge for credibility
+                </p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-6 text-center">
                 <Building className="w-10 h-10 text-fme-orange mx-auto mb-3" />
                 <h3 className="font-semibold mb-2">Zero Commission</h3>
-                <p className="text-sm text-gray-600">Direct UPI payments with no platform fees</p>
+                <p className="text-sm text-gray-600">
+                  Direct UPI payments with no platform fees
+                </p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-6 text-center">
                 <FileText className="w-10 h-10 text-green-500 mx-auto mb-3" />
                 <h3 className="font-semibold mb-2">Easy Management</h3>
-                <p className="text-sm text-gray-600">Simple tools for tickets, analytics & check-ins</p>
+                <p className="text-sm text-gray-600">
+                  Simple tools for tickets, analytics & check-ins
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -269,54 +294,74 @@ export default function BecomeOrganizer() {
 
                 {/* Organization Details */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Organization Details</h3>
-                  
+                  <h3 className="text-lg font-semibold">
+                    Organization Details
+                  </h3>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="organization_name">Organization Name</Label>
+                      <Label htmlFor="organization_name">
+                        Organization Name
+                      </Label>
                       <Input
                         id="organization_name"
                         placeholder="IIT Delhi Tech Club"
-                        {...register('organization_name')}
+                        {...register("organization_name")}
                       />
                       {errors.organization_name && (
-                        <p className="text-sm text-red-600">{errors.organization_name.message}</p>
+                        <p className="text-sm text-red-600">
+                          {errors.organization_name.message}
+                        </p>
                       )}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="organization_type">Organization Type</Label>
-                      <Select onValueChange={(value) => setValue('organization_type', value as any)}>
+                      <Label htmlFor="organization_type">
+                        Organization Type
+                      </Label>
+                      <Select
+                        onValueChange={(value) =>
+                          setValue("organization_type", value as any)
+                        }
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent>
-                          {organizationTypes.map(type => (
+                          {organizationTypes.map((type) => (
                             <SelectItem key={type.value} value={type.value}>
                               <div>
                                 <div className="font-medium">{type.label}</div>
-                                <div className="text-sm text-gray-500">{type.description}</div>
+                                <div className="text-sm text-gray-500">
+                                  {type.description}
+                                </div>
                               </div>
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                       {errors.organization_type && (
-                        <p className="text-sm text-red-600">{errors.organization_type.message}</p>
+                        <p className="text-sm text-red-600">
+                          {errors.organization_type.message}
+                        </p>
                       )}
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="description">Organization Description</Label>
+                    <Label htmlFor="description">
+                      Organization Description
+                    </Label>
                     <Textarea
                       id="description"
                       rows={4}
                       placeholder="Tell us about your organization, what events you plan to host, and your experience..."
-                      {...register('description')}
+                      {...register("description")}
                     />
                     {errors.description && (
-                      <p className="text-sm text-red-600">{errors.description.message}</p>
+                      <p className="text-sm text-red-600">
+                        {errors.description.message}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -324,7 +369,7 @@ export default function BecomeOrganizer() {
                 {/* Contact Information */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Contact Information</h3>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="official_email">Official Email</Label>
@@ -335,11 +380,13 @@ export default function BecomeOrganizer() {
                           type="email"
                           placeholder="contact@organization.edu"
                           className="pl-10"
-                          {...register('official_email')}
+                          {...register("official_email")}
                         />
                       </div>
                       {errors.official_email && (
-                        <p className="text-sm text-red-600">{errors.official_email.message}</p>
+                        <p className="text-sm text-red-600">
+                          {errors.official_email.message}
+                        </p>
                       )}
                     </div>
 
@@ -352,11 +399,13 @@ export default function BecomeOrganizer() {
                           type="url"
                           placeholder="https://yourorganization.edu"
                           className="pl-10"
-                          {...register('website_url')}
+                          {...register("website_url")}
                         />
                       </div>
                       {errors.website_url && (
-                        <p className="text-sm text-red-600">{errors.website_url.message}</p>
+                        <p className="text-sm text-red-600">
+                          {errors.website_url.message}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -364,8 +413,10 @@ export default function BecomeOrganizer() {
 
                 {/* Social Media */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Social Media (Optional)</h3>
-                  
+                  <h3 className="text-lg font-semibold">
+                    Social Media (Optional)
+                  </h3>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="instagram_handle">Instagram Handle</Label>
@@ -375,7 +426,7 @@ export default function BecomeOrganizer() {
                           id="instagram_handle"
                           placeholder="@yourorganization"
                           className="pl-10"
-                          {...register('instagram_handle')}
+                          {...register("instagram_handle")}
                         />
                       </div>
                     </div>
@@ -389,11 +440,13 @@ export default function BecomeOrganizer() {
                           type="url"
                           placeholder="https://linkedin.com/company/..."
                           className="pl-10"
-                          {...register('linkedin_url')}
+                          {...register("linkedin_url")}
                         />
                       </div>
                       {errors.linkedin_url && (
-                        <p className="text-sm text-red-600">{errors.linkedin_url.message}</p>
+                        <p className="text-sm text-red-600">
+                          {errors.linkedin_url.message}
+                        </p>
                       )}
                     </div>
                   </div>
@@ -401,11 +454,14 @@ export default function BecomeOrganizer() {
 
                 {/* Document Upload */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Verification Documents</h3>
+                  <h3 className="text-lg font-semibold">
+                    Verification Documents
+                  </h3>
                   <p className="text-sm text-gray-600">
-                    Upload official documents to verify your organization (ID card, letter of authorization, etc.)
+                    Upload official documents to verify your organization (ID
+                    card, letter of authorization, etc.)
                   </p>
-                  
+
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
                     <div className="text-center">
                       <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
@@ -426,13 +482,18 @@ export default function BecomeOrganizer() {
                         Choose File
                       </label>
                     </div>
-                    
+
                     {uploadedDocs.length > 0 && (
                       <div className="mt-4">
-                        <p className="text-sm font-medium text-gray-700 mb-2">Uploaded Documents:</p>
+                        <p className="text-sm font-medium text-gray-700 mb-2">
+                          Uploaded Documents:
+                        </p>
                         <div className="space-y-1">
                           {uploadedDocs.map((doc, index) => (
-                            <div key={index} className="flex items-center text-sm text-green-600">
+                            <div
+                              key={index}
+                              className="flex items-center text-sm text-green-600"
+                            >
                               <CheckCircle className="w-4 h-4 mr-2" />
                               Document {index + 1} uploaded successfully
                             </div>
@@ -448,7 +509,7 @@ export default function BecomeOrganizer() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => navigate("/dashboard")}
                   >
                     Cancel
                   </Button>
@@ -463,7 +524,7 @@ export default function BecomeOrganizer() {
                         Submitting...
                       </>
                     ) : (
-                      'Submit Application'
+                      "Submit Application"
                     )}
                   </Button>
                 </div>
@@ -472,7 +533,7 @@ export default function BecomeOrganizer() {
           </Card>
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

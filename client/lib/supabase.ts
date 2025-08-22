@@ -225,7 +225,7 @@ export const verifyOtp = async (phone: string, token: string) => {
 export const getEvents = async (filters?: any) => {
   // If Supabase is not configured, return demo events
   if (!supabase) {
-    const { getDemoEvents } = await import('./demo-data');
+    const { getDemoEvents } = await import("./demo-data");
     return getDemoEvents();
   }
 
@@ -287,7 +287,7 @@ export const getEventById = async (id: string) => {
 
 export const getUserTickets = async (userId: string) => {
   // Handle demo users
-  const { isDemoUser, getDemoTickets } = await import('./demo-data');
+  const { isDemoUser, getDemoTickets } = await import("./demo-data");
   if (isDemoUser(userId)) {
     console.log("Demo user - returning mock tickets");
     return getDemoTickets(userId);
@@ -379,7 +379,9 @@ export const registerForEvent = async (registrationData: any) => {
 
 export const getOrganizerByUserId = async (userId: string) => {
   // Handle demo organizer user
-  const { isDemoUser, getDemoOrganizer, DEMO_USER_IDS } = await import('./demo-data');
+  const { isDemoUser, getDemoOrganizer, DEMO_USER_IDS } = await import(
+    "./demo-data"
+  );
   if (isDemoUser(userId) && userId === DEMO_USER_IDS.ORGANIZER) {
     return getDemoOrganizer();
   }
@@ -416,8 +418,8 @@ export const createOrganizer = async (organizerData: any) => {
 
 export const getOrganizerEvents = async (organizerId: string) => {
   // Handle demo organizer events
-  if (organizerId === 'demo-organizer-1') {
-    const { getDemoEvents } = await import('./demo-data');
+  if (organizerId === "demo-organizer-1") {
+    const { getDemoEvents } = await import("./demo-data");
     return getDemoEvents();
   }
 
@@ -522,7 +524,7 @@ export const createNotification = async (notificationData: any) => {
 
 export const getUserNotifications = async (userId: string) => {
   // Handle demo users
-  const { isDemoUser, getDemoNotifications } = await import('./demo-data');
+  const { isDemoUser, getDemoNotifications } = await import("./demo-data");
   if (isDemoUser(userId)) {
     console.log("Demo user - returning mock notifications");
     return getDemoNotifications(userId);

@@ -34,7 +34,11 @@ export default function OrganizerRouteGuard({
   // Also allow demo organizer user
   const isDemoOrganizer = user?.id === "00000000-0000-4000-8000-000000000002";
 
-  if (profile?.role !== "organizer" && profile?.role !== "admin" && !isDemoOrganizer) {
+  if (
+    profile?.role !== "organizer" &&
+    profile?.role !== "admin" &&
+    !isDemoOrganizer
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="max-w-md w-full mx-4">

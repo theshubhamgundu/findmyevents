@@ -2,8 +2,19 @@
 
 export type UserRole = "student" | "organizer" | "admin";
 export type VerificationStatus = "pending" | "approved" | "rejected";
-export type EventStatus = "draft" | "pending" | "approved" | "published" | "cancelled";
-export type EventType = "hackathon" | "workshop" | "seminar" | "fest" | "ideathon" | "other";
+export type EventStatus =
+  | "draft"
+  | "pending"
+  | "approved"
+  | "published"
+  | "cancelled";
+export type EventType =
+  | "hackathon"
+  | "workshop"
+  | "seminar"
+  | "fest"
+  | "ideathon"
+  | "other";
 export type TicketStatus = "active" | "used" | "cancelled";
 export type RegistrationStatus = "pending" | "confirmed" | "cancelled";
 

@@ -1,7 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase, getCurrentProfile, isSupabaseConfigured } from "./supabase";
-import { getDemoUserByCredentials, getDemoProfile, saveDemoSession, loadDemoSession, clearDemoSession } from "./demo-data";
+import {
+  getDemoUserByCredentials,
+  getDemoProfile,
+  saveDemoSession,
+  loadDemoSession,
+  clearDemoSession,
+} from "./demo-data";
 import type { Profile } from "@shared/types";
 
 interface AuthContextType {
@@ -200,14 +206,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Handle demo users
     if (!isSupabaseConfigured) {
-      const updatedProfile = { ...profile, ...updates, updated_at: new Date().toISOString() };
+      const updatedProfile = {
+        ...profile,
+        ...updates,
+        updated_at: new Date().toISOString(),
+      };
       setProfile(updatedProfile);
 
       // Update demo session
       const currentSession = loadDemoSession();
       if (currentSession) {
         currentSession.profile = updatedProfile;
-        localStorage.setItem('demo_user_session', JSON.stringify(currentSession));
+        localStorage.setItem(
+          "demo_user_session",
+          JSON.stringify(currentSession),
+        );
       }
       return;
     }

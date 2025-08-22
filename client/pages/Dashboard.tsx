@@ -255,7 +255,8 @@ export default function Dashboard() {
               <AlertCircle className="w-12 h-12 text-fme-orange mx-auto mb-4" />
               <h2 className="text-xl font-semibold mb-2">Demo Mode</h2>
               <p className="text-gray-600 mb-4">
-                Dashboard functionality requires Supabase configuration or demo login.
+                Dashboard functionality requires Supabase configuration or demo
+                login.
               </p>
               <Button
                 onClick={() => navigate("/events")}

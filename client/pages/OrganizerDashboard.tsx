@@ -69,7 +69,7 @@ export default function OrganizerDashboard() {
 
       setEvents(organizerEvents);
     } catch (error) {
-      console.error('Error loading organizer data:', error);
+      console.error("Error loading organizer data:", error);
     } finally {
       setLoading(false);
     }
@@ -78,9 +78,12 @@ export default function OrganizerDashboard() {
   // Calculate stats from actual events data
   const organizerStats = {
     totalEvents: events.length,
-    activeEvents: events.filter(e => e.event_status === 'published').length,
-    totalRegistrations: events.reduce((sum, e) => sum + (e.current_participants || 0), 0),
-    pendingApprovals: events.filter(e => e.event_status === 'pending').length,
+    activeEvents: events.filter((e) => e.event_status === "published").length,
+    totalRegistrations: events.reduce(
+      (sum, e) => sum + (e.current_participants || 0),
+      0,
+    ),
+    pendingApprovals: events.filter((e) => e.event_status === "pending").length,
   };
 
   if (loading) {
@@ -244,8 +247,8 @@ export default function OrganizerDashboard() {
                             </span>
                             <span className="flex items-center">
                               <Users className="w-4 h-4 mr-1" />
-                              {event.current_participants}/{event.max_participants || 'Unlimited'}{" "}
-                              registered
+                              {event.current_participants}/
+                              {event.max_participants || "Unlimited"} registered
                             </span>
                           </div>
                         </div>
@@ -259,9 +262,7 @@ export default function OrganizerDashboard() {
                           >
                             {event.event_status}
                           </Badge>
-                          <Badge variant="outline">
-                            {event.event_type}
-                          </Badge>
+                          <Badge variant="outline">{event.event_type}</Badge>
                         </div>
                       </div>
 
