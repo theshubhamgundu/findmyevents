@@ -107,9 +107,11 @@ export default function Login() {
 
       await signIn(data.email, data.password);
 
-      // Check if this is the admin demo login
+      // Check for specific demo logins and redirect appropriately
       if (data.email === "shubsss" && data.password === "shubsss@1911") {
         navigate("/admin/dashboard");
+      } else if (data.email === "organizer" && data.password === "organizer123") {
+        navigate("/organizer/dashboard");
       } else {
         // Let Dashboard component handle the role-based redirection
         navigate("/dashboard");
