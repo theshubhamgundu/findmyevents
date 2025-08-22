@@ -287,7 +287,6 @@ export const getEventById = async (id: string) => {
 
 export const getUserTickets = async (userId: string) => {
   // Handle demo users
-  const { isDemoUser, getDemoTickets } = await import("./demo-data");
   if (isDemoUser(userId)) {
     console.log("Demo user - returning mock tickets");
     return getDemoTickets(userId);
