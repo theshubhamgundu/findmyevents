@@ -15,13 +15,19 @@ import {
   Settings,
   Bell,
   Download,
+  Loader2,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { getOrganizerByUserId, getOrganizerEvents } from "@/lib/supabase";
+import { isDemoUser, getDemoEvents } from "@/lib/demo-data";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import type { Event, Organizer } from "@shared/types";
 
 export default function OrganizerDashboard() {
   const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [organizer, setOrganizer] = useState<Organizer | null>(null);
   const { user, profile, isConfigured } = useAuth();
   const navigate = useNavigate();
 
@@ -32,51 +38,50 @@ export default function OrganizerDashboard() {
     }
 
     // Check if user is demo organizer
-    const isDemoOrganizer = user.id === "00000000-0000-4000-8000-000000000002";
+    const isDemoOrganizer = isDemoUser(user.id);
 
     if (!isConfigured && !isDemoOrganizer) {
       setLoading(false);
       return;
     }
 
-    // Simulate loading organizer data
-    setTimeout(() => setLoading(false), 1000);
+    loadOrganizerData();
   }, [user, isConfigured]);
 
-  // Mock organizer data
-  const organizerStats = {
-    totalEvents: 12,
-    activeEvents: 3,
-    totalRegistrations: 1247,
-    pendingApprovals: 2,
+  const loadOrganizerData = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+
+      // Load organizer profile
+      const organizerData = await getOrganizerByUserId(user.id);
+      setOrganizer(organizerData);
+
+      // Load organizer events
+      let organizerEvents: Event[] = [];
+      if (organizerData) {
+        organizerEvents = await getOrganizerEvents(organizerData.id);
+      } else if (isDemoUser(user.id)) {
+        // Use demo events for demo users
+        organizerEvents = getDemoEvents();
+      }
+
+      setEvents(organizerEvents);
+    } catch (error) {
+      console.error('Error loading organizer data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const mockEvents = [
-    {
-      id: "1",
-      title: "AI/ML Workshop 2024",
-      date: "2024-02-20",
-      registrations: 145,
-      status: "published",
-      maxParticipants: 200,
-    },
-    {
-      id: "2",
-      title: "React Advanced Bootcamp",
-      date: "2024-02-25",
-      registrations: 89,
-      status: "pending",
-      maxParticipants: 150,
-    },
-    {
-      id: "3",
-      title: "Startup Pitch Competition",
-      date: "2024-03-01",
-      registrations: 67,
-      status: "published",
-      maxParticipants: 100,
-    },
-  ];
+  // Calculate stats from actual events data
+  const organizerStats = {
+    totalEvents: events.length,
+    activeEvents: events.filter(e => e.event_status === 'published').length,
+    totalRegistrations: events.reduce((sum, e) => sum + (e.current_participants || 0), 0),
+    pendingApprovals: events.filter(e => e.event_status === 'pending').length,
+  };
 
   if (loading) {
     return (
@@ -84,7 +89,7 @@ export default function OrganizerDashboard() {
         <Header />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fme-blue mx-auto mb-4"></div>
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" />
             <p>Loading organizer dashboard...</p>
           </div>
         </main>
@@ -206,64 +211,86 @@ export default function OrganizerDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {mockEvents.map((event) => (
-                  <div key={event.id} className="border rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                          {event.title}
-                        </h3>
-                        <div className="flex items-center space-x-4 text-sm text-gray-600">
-                          <span className="flex items-center">
-                            <Calendar className="w-4 h-4 mr-1" />
-                            {new Date(event.date).toLocaleDateString()}
-                          </span>
-                          <span className="flex items-center">
-                            <Users className="w-4 h-4 mr-1" />
-                            {event.registrations}/{event.maxParticipants}{" "}
-                            registered
-                          </span>
+              {events.length === 0 ? (
+                <div className="text-center py-12">
+                  <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    No Events Created Yet
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    Start by creating your first event to connect with students
+                  </p>
+                  <Button
+                    onClick={() => navigate("/create-event")}
+                    className="bg-fme-orange hover:bg-fme-orange/90"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Your First Event
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {events.map((event) => (
+                    <div key={event.id} className="border rounded-lg p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                            {event.title}
+                          </h3>
+                          <div className="flex items-center space-x-4 text-sm text-gray-600">
+                            <span className="flex items-center">
+                              <Calendar className="w-4 h-4 mr-1" />
+                              {new Date(event.start_date).toLocaleDateString()}
+                            </span>
+                            <span className="flex items-center">
+                              <Users className="w-4 h-4 mr-1" />
+                              {event.current_participants}/{event.max_participants || 'Unlimited'}{" "}
+                              registered
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge
+                            variant={
+                              event.event_status === "published"
+                                ? "default"
+                                : "secondary"
+                            }
+                          >
+                            {event.event_status}
+                          </Badge>
+                          <Badge variant="outline">
+                            {event.event_type}
+                          </Badge>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Badge
-                          variant={
-                            event.status === "published"
-                              ? "default"
-                              : "secondary"
-                          }
+
+                      <div className="flex space-x-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => navigate(`/events/${event.id}`)}
                         >
-                          {event.status}
-                        </Badge>
+                          <Eye className="w-4 h-4 mr-2" />
+                          View
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => navigate(`/manage-event/${event.id}`)}
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Manage
+                        </Button>
+                        <Button size="sm" variant="outline">
+                          <BarChart3 className="w-4 h-4 mr-2" />
+                          Analytics
+                        </Button>
                       </div>
                     </div>
-
-                    <div className="flex space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => navigate(`/events/${event.id}`)}
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        View
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => navigate(`/manage-event/${event.id}`)}
-                      >
-                        <Edit className="w-4 h-4 mr-2" />
-                        Manage
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <BarChart3 className="w-4 h-4 mr-2" />
-                        Analytics
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
