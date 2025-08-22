@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase, getCurrentProfile, isSupabaseConfigured } from "./supabase";
+import { getDemoUserByCredentials, getDemoProfile, saveDemoSession, loadDemoSession, clearDemoSession } from "./demo-data";
 import type { Profile } from "@shared/types";
 
 interface AuthContextType {
@@ -29,16 +30,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // If Supabase is not configured, check for demo session
     if (!isSupabaseConfigured) {
       // Restore demo session if exists
-      const savedSession = localStorage.getItem('demo_user_session');
-      if (savedSession) {
-        try {
-          const { user, profile } = JSON.parse(savedSession);
-          setUser(user);
-          setProfile(profile);
-        } catch (error) {
-          console.warn('Failed to restore demo session:', error);
-          localStorage.removeItem('demo_user_session');
-        }
+      const demoSession = loadDemoSession();
+      if (demoSession) {
+        setUser(demoSession.user);
+        setProfile(demoSession.profile);
       }
       setLoading(false);
       return;
@@ -88,149 +83,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
-    // Demo admin login bypass - simulates database-stored admin user
-    if (email === "shubsss" && password === "shubsss@1911") {
-      const demoUserId = "00000000-0000-4000-8000-000000000001";
-      const demoUser = {
-        id: demoUserId,
-        email: "admin@findmyevent.com",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        aud: "authenticated",
-        role: "authenticated",
-        // Simulate database metadata
-        user_metadata: {
-          provider: "demo",
-          verified: true,
-          last_sign_in: new Date().toISOString()
-        }
-      } as User;
-
-      const demoProfile: Profile = {
-        id: demoUserId,
-        email: "admin@findmyevent.com",
-        full_name: "System Administrator",
-        role: "admin",
-        phone: "+91-9876543210",
-        city: "Mumbai",
-        college: "FindMyEvent HQ",
-        year_of_study: null,
-        interests: ["platform_management", "user_analytics"],
-        notification_preferences: {
-          email: true,
-          whatsapp: true,
-          telegram: false,
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        last_active: new Date().toISOString(),
-        verification_status: "verified",
-        profile_completion: 100
-      };
-
-      // Simulate database session storage
-      localStorage.setItem('demo_user_session', JSON.stringify({ user: demoUser, profile: demoProfile }));
-
-      setUser(demoUser);
-      setProfile(demoProfile);
-      setLoading(false);
-      return;
-    }
-
-    // Demo organizer login bypass - simulates database-stored organizer user
-    if (email === "organizer" && password === "organizer123") {
-      const demoUserId = "00000000-0000-4000-8000-000000000002";
-      const demoUser = {
-        id: demoUserId,
-        email: "organizer@findmyevent.com",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        aud: "authenticated",
-        role: "authenticated",
-        user_metadata: {
-          provider: "demo",
-          verified: true,
-          last_sign_in: new Date().toISOString()
-        }
-      } as User;
-
-      const demoProfile: Profile = {
-        id: demoUserId,
-        email: "organizer@findmyevent.com",
-        full_name: "Tech Events Organizer",
-        role: "organizer",
-        phone: "+91-9123456789",
-        city: "Bangalore",
-        college: "IIT Bangalore",
-        year_of_study: null,
-        interests: ["event_management", "hackathons", "workshops"],
-        notification_preferences: {
-          email: true,
-          whatsapp: true,
-          telegram: true,
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        last_active: new Date().toISOString(),
-        verification_status: "verified",
-        profile_completion: 95
-      };
-
-      // Simulate database session storage
-      localStorage.setItem('demo_user_session', JSON.stringify({ user: demoUser, profile: demoProfile }));
-
-      setUser(demoUser);
-      setProfile(demoProfile);
-      setLoading(false);
-      return;
-    }
-
-    // Demo student login bypass - simulates database-stored student user
-    if (email === "student" && password === "student123") {
-      const demoUserId = "00000000-0000-4000-8000-000000000003";
-      const demoUser = {
-        id: demoUserId,
-        email: "student@findmyevent.com",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        aud: "authenticated",
-        role: "authenticated",
-        user_metadata: {
-          provider: "demo",
-          verified: true,
-          last_sign_in: new Date().toISOString()
-        }
-      } as User;
-
-      const demoProfile: Profile = {
-        id: demoUserId,
-        email: "student@findmyevent.com",
-        full_name: "CS Student",
-        role: "student",
-        phone: "+91-9987654321",
-        city: "Delhi",
-        college: "Delhi Technological University",
-        year_of_study: "3rd Year",
-        interests: ["hackathons", "ai_ml", "web_development", "coding_competitions"],
-        notification_preferences: {
-          email: true,
-          whatsapp: true,
-          telegram: false,
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        last_active: new Date().toISOString(),
-        verification_status: "verified",
-        profile_completion: 85
-      };
-
-      // Simulate database session storage
-      localStorage.setItem('demo_user_session', JSON.stringify({ user: demoUser, profile: demoProfile }));
-
-      setUser(demoUser);
-      setProfile(demoProfile);
-      setLoading(false);
-      return;
+    // Check for demo user credentials
+    const demoUserId = getDemoUserByCredentials(email, password);
+    if (demoUserId) {
+      const sessionData = saveDemoSession(demoUserId);
+      if (sessionData) {
+        setUser(sessionData.user as User);
+        setProfile(sessionData.profile);
+        setLoading(false);
+        return;
+      }
     }
 
     if (!isSupabaseConfigured) {
@@ -319,8 +181,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.warn("Error during camera cleanup:", error);
     }
 
-    // Clear demo session storage
-    localStorage.removeItem('demo_user_session');
+    // Clear demo session
+    clearDemoSession();
 
     // Clear user state for demo users (non-Supabase)
     if (!isSupabaseConfigured) {
@@ -341,12 +203,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const updatedProfile = { ...profile, ...updates, updated_at: new Date().toISOString() };
       setProfile(updatedProfile);
 
-      // Update localStorage session
-      const currentSession = localStorage.getItem('demo_user_session');
+      // Update demo session
+      const currentSession = loadDemoSession();
       if (currentSession) {
-        const session = JSON.parse(currentSession);
-        session.profile = updatedProfile;
-        localStorage.setItem('demo_user_session', JSON.stringify(session));
+        currentSession.profile = updatedProfile;
+        localStorage.setItem('demo_user_session', JSON.stringify(currentSession));
       }
       return;
     }
