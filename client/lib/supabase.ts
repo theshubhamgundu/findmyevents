@@ -519,7 +519,6 @@ export const createNotification = async (notificationData: any) => {
 
 export const getUserNotifications = async (userId: string) => {
   // Handle demo users
-  const { isDemoUser, getDemoNotifications } = await import("./demo-data");
   if (isDemoUser(userId)) {
     console.log("Demo user - returning mock notifications");
     return getDemoNotifications(userId);
