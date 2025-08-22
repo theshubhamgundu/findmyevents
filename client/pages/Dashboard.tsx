@@ -43,6 +43,7 @@ import {
   updateEventAnalytics,
   getEvents,
 } from "@/lib/supabase";
+import { isDemoUser, getDemoEvents } from "@/lib/demo-data";
 import { generateTicketQR, downloadQRCode } from "@/lib/qr-utils";
 import { formatCurrency } from "@/lib/payment-utils";
 import Header from "@/components/Header";
@@ -111,7 +112,13 @@ export default function Dashboard() {
       setTickets(userTickets);
 
       // Load all events for categorization
-      const allEvents = await getEvents();
+      let allEvents;
+      if (isDemoUser(user.id)) {
+        // Use demo events for demo users
+        allEvents = getDemoEvents();
+      } else {
+        allEvents = await getEvents();
+      }
 
       // For students, categorize events
       if (profile?.role === "student") {
@@ -124,7 +131,7 @@ export default function Dashboard() {
               (interest) =>
                 event.event_type === interest ||
                 event.tags?.some((tag) =>
-                  profile.interests.includes(tag.toLowerCase()),
+                  profile.interests?.includes(tag.toLowerCase()),
                 ),
             );
           })
