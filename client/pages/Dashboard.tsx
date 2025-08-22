@@ -66,7 +66,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user || !isConfigured) {
+    if (!user) {
       setLoading(false);
       return;
     }
@@ -83,8 +83,22 @@ export default function Dashboard() {
       return;
     }
 
-    loadDashboardData();
+    // Only load data if configured or if it's a demo user
+    if (isConfigured || isDemoUser(user)) {
+      loadDashboardData();
+    } else {
+      setLoading(false);
+    }
   }, [user, profile, isConfigured, navigate]);
+
+  const isDemoUser = (user: any) => {
+    const demoUserIds = [
+      "00000000-0000-4000-8000-000000000001", // admin
+      "00000000-0000-4000-8000-000000000002", // organizer
+      "00000000-0000-4000-8000-000000000003", // student
+    ];
+    return demoUserIds.includes(user?.id);
+  };
 
   const loadDashboardData = async () => {
     if (!user) return;
