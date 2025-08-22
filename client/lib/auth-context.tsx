@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error("Failed to load demo session:", error);
         // Clear corrupted session
-        localStorage.removeItem('demo_user_session');
+        localStorage.removeItem("demo_user_session");
       }
       setLoading(false);
       return;
@@ -237,7 +237,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           );
         }
       } catch (error) {
-        console.error('Failed to update demo session:', error);
+        console.error("Failed to update demo session:", error);
       }
       return;
     }

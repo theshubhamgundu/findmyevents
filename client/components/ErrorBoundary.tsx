@@ -1,7 +1,7 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+import React, { Component, ErrorInfo, ReactNode } from "react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, RefreshCw } from "lucide-react";
 
 interface Props {
   children: ReactNode;
@@ -22,7 +22,7 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Error boundary caught an error:', error, errorInfo);
+    console.error("Error boundary caught an error:", error, errorInfo);
   }
 
   private handleRefresh = () => {
@@ -45,19 +45,23 @@ class ErrorBoundary extends Component<Props, State> {
                   <div>
                     <h3 className="font-semibold">Something went wrong</h3>
                     <p className="text-sm mt-1">
-                      An unexpected error occurred. Please try refreshing the page.
+                      An unexpected error occurred. Please try refreshing the
+                      page.
                     </p>
                   </div>
-                  
-                  {this.state.error && process.env.NODE_ENV === 'development' && (
-                    <details className="text-xs bg-gray-100 p-2 rounded">
-                      <summary className="cursor-pointer">Error details</summary>
-                      <pre className="mt-2 whitespace-pre-wrap">
-                        {this.state.error.message}
-                      </pre>
-                    </details>
-                  )}
-                  
+
+                  {this.state.error &&
+                    process.env.NODE_ENV === "development" && (
+                      <details className="text-xs bg-gray-100 p-2 rounded">
+                        <summary className="cursor-pointer">
+                          Error details
+                        </summary>
+                        <pre className="mt-2 whitespace-pre-wrap">
+                          {this.state.error.message}
+                        </pre>
+                      </details>
+                    )}
+
                   <div className="flex space-x-2">
                     <Button
                       onClick={this.handleRefresh}
