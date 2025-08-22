@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { isDemoUser, getDemoTickets, getDemoNotifications, getDemoEvents, getDemoOrganizer, DEMO_USER_IDS } from "./demo-data";
 
 // Support both VITE_ and NEXT_PUBLIC_ prefixes for compatibility
 const supabaseUrl =
