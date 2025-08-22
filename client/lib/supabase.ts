@@ -223,7 +223,11 @@ export const verifyOtp = async (phone: string, token: string) => {
 
 // Event management
 export const getEvents = async (filters?: any) => {
-  if (!supabase) return [];
+  // If Supabase is not configured, return demo events
+  if (!supabase) {
+    const { getDemoEvents } = await import('./demo-data');
+    return getDemoEvents();
+  }
 
   let query = supabase
     .from("events")
@@ -282,39 +286,11 @@ export const getEventById = async (id: string) => {
 };
 
 export const getUserTickets = async (userId: string) => {
-  // Handle demo admin user
-  if (userId === "00000000-0000-4000-8000-000000000001") {
-    console.log("Demo admin user - returning mock tickets");
-    return [];
-  }
-
-  // Handle demo student user
-  if (userId === "00000000-0000-4000-8000-000000000003") {
-    console.log("Demo student user - returning mock tickets");
-    return [
-      {
-        id: "demo-ticket-1",
-        user_id: userId,
-        event_id: "demo-event-1",
-        ticket_id: "FME-DEMO-001",
-        status: "active",
-        created_at: new Date().toISOString(),
-        event: {
-          id: "demo-event-1",
-          title: "AI/ML Workshop 2024",
-          venue: "Tech Hub Auditorium",
-          start_date: new Date(
-            Date.now() + 7 * 24 * 60 * 60 * 1000,
-          ).toISOString(),
-          city: "Mumbai",
-        },
-        ticket_type: {
-          id: "demo-ticket-type-1",
-          name: "Standard Pass",
-          price: 299,
-        },
-      },
-    ];
+  // Handle demo users
+  const { isDemoUser, getDemoTickets } = await import('./demo-data');
+  if (isDemoUser(userId)) {
+    console.log("Demo user - returning mock tickets");
+    return getDemoTickets(userId);
   }
 
   if (!supabase) {
@@ -402,6 +378,12 @@ export const registerForEvent = async (registrationData: any) => {
 };
 
 export const getOrganizerByUserId = async (userId: string) => {
+  // Handle demo organizer user
+  const { isDemoUser, getDemoOrganizer, DEMO_USER_IDS } = await import('./demo-data');
+  if (isDemoUser(userId) && userId === DEMO_USER_IDS.ORGANIZER) {
+    return getDemoOrganizer();
+  }
+
   if (!supabase) return null;
 
   const { data, error } = await supabase
@@ -433,6 +415,12 @@ export const createOrganizer = async (organizerData: any) => {
 };
 
 export const getOrganizerEvents = async (organizerId: string) => {
+  // Handle demo organizer events
+  if (organizerId === 'demo-organizer-1') {
+    const { getDemoEvents } = await import('./demo-data');
+    return getDemoEvents();
+  }
+
   if (!supabase) return [];
 
   const { data, error } = await supabase
@@ -533,22 +521,11 @@ export const createNotification = async (notificationData: any) => {
 };
 
 export const getUserNotifications = async (userId: string) => {
-  // Handle demo admin user
-  if (userId === "00000000-0000-4000-8000-000000000001") {
-    console.log("Demo admin user - returning mock notifications");
-    return [
-      {
-        id: "demo-notif-1",
-        user_id: userId,
-        type: "admin_welcome",
-        title: "Welcome to Admin Dashboard",
-        message:
-          "You are now logged in as a demo admin user with full access to the Core Admin Dashboard.",
-        data: {},
-        is_read: false,
-        created_at: new Date().toISOString(),
-      },
-    ];
+  // Handle demo users
+  const { isDemoUser, getDemoNotifications } = await import('./demo-data');
+  if (isDemoUser(userId)) {
+    console.log("Demo user - returning mock notifications");
+    return getDemoNotifications(userId);
   }
 
   if (!supabase) {
