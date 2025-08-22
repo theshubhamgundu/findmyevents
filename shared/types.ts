@@ -19,6 +19,7 @@ export interface Profile {
   gender?: string;
   college?: string;
   course?: string;
+  year_of_study?: string; // Current year of study
   graduation_year?: number;
   city?: string;
   state?: string;
@@ -30,6 +31,9 @@ export interface Profile {
   preferred_location?: string[];
   community_channels?: any;
   is_verified?: boolean;
+  verification_status?: string; // For account verification status
+  profile_completion?: number; // Percentage of profile completion
+  last_active?: string; // Last activity timestamp
   notification_preferences?: {
     email: boolean;
     whatsapp: boolean;
