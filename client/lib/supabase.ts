@@ -226,7 +226,6 @@ export const verifyOtp = async (phone: string, token: string) => {
 export const getEvents = async (filters?: any) => {
   // If Supabase is not configured, return demo events
   if (!supabase) {
-    const { getDemoEvents } = await import("./demo-data");
     return getDemoEvents();
   }
 
