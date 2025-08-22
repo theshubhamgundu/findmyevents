@@ -9,7 +9,29 @@ interface AdminRouteGuardProps {
 }
 
 export default function AdminRouteGuard({ children }: AdminRouteGuardProps) {
-  const { user, profile, loading, isConfigured } = useAuth();
+  let user, profile, loading, isConfigured;
+
+  try {
+    const authContext = useAuth();
+    user = authContext.user;
+    profile = authContext.profile;
+    loading = authContext.loading;
+    isConfigured = authContext.isConfigured;
+  } catch (error) {
+    console.error("Error accessing auth context:", error);
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="max-w-md w-full mx-4">
+          <Alert variant="destructive">
+            <Shield className="h-4 w-4" />
+            <AlertDescription>
+              Authentication error. Please refresh the page and try again.
+            </AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
+  }
 
   // Show loading while auth is initializing
   if (loading) {
