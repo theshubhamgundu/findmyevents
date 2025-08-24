@@ -172,7 +172,10 @@ const App = () => (
                 element={
                   <PlaceholderPage
                     title="Contact Us"
-                    description="Get in touch with our team for any questions or support."
+                    description="Get in touch with our team for any questions or support.
+
+contact no:- +91 8698846796
+email :- findmyevents.online@gmail.com"
                   />
                 }
               />
